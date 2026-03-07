@@ -12,7 +12,7 @@ package sistema;
  */
 public class Ciudad implements Comparable<Ciudad> {
 
-    private String nombre;
+    private final String nombre;
     private boolean tieneAlojamiento;
     private boolean esSede;
 
@@ -30,13 +30,7 @@ public class Ciudad implements Comparable<Ciudad> {
         return nombre;
     }
 
-    /**
-     * Permite renombrar la ciudad (ABM — modificación, opción 1 del TPO).
-     * Se normaliza a mayúsculas para mantener consistencia.
-     */
-    public void setNombre(String nombre) {
-        this.nombre = nombre.trim().toUpperCase();
-    }
+    // * No hay setter en nombre de la ciudad porque es su identificador único.
 
     public boolean tieneAlojamiento() {
         return tieneAlojamiento;
@@ -63,9 +57,6 @@ public class Ciudad implements Comparable<Ciudad> {
 
     // Equals, hashCode, compareTo y toString
 
-    // TODO: implementar método equals() basado en el nombre para que el Grafo ubique vértices por nombre
-    // TODO: implementar hashCode() y que sea consistente con equals()
-
     /**
      * Orden alfabético por nombre (case-insensitive). Permite ordenar ciudades si fuese necesario
      * en alguna consulta.
@@ -75,5 +66,41 @@ public class Ciudad implements Comparable<Ciudad> {
         return this.nombre.compareToIgnoreCase(otra.nombre);
     }
 
-    // TODO: implementar método toString() y buscar cómo usar StringBuilder
+    /**
+     * Dos ciudades son iguales si tienen el mismo nombre (case-insensitive). Es importante para que
+     * el Grafo pueda ubicar los vértices por nombre y evitar duplicados.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        boolean iguales = false;
+        // Podría agregar un try/catch, pero asumo que siempre se usa Ciudad por el dominio del TPO
+        if (obj != null) {
+            Ciudad otra = (Ciudad) obj;
+            iguales = this.nombre.equalsIgnoreCase(otra.getNombre());
+        }
+        return iguales;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.nombre.toUpperCase().hashCode();
+    }
+
+    /**
+     * toString informativo para debugging y para mostrar información de la ciudad en las consultas
+     * (punto 8 del TPO). Ejemplo de salida: "Ciudad: MIAMI | Alojamiento: true | Sede: true"
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Ciudad: ");
+        sb.append(nombre);
+        sb.append(" | Alojamiento: ");
+        sb.append(tieneAlojamiento); // quizás podría cambiar a "Si/No", pero dejo boolean por ahora
+        sb.append(" | Sede: ");
+        sb.append(esSede);
+
+        return sb.toString();
+    }
 }
