@@ -1,0 +1,1 @@
+// Objeto para el Grafo (nombre, sede, alojamiento)

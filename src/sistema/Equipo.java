@@ -1,0 +1,1 @@
+// Objeto para el AVL (nombre, DT, grupo, goles, etc.)

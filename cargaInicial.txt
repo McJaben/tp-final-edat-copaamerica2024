@@ -1,0 +1,1 @@
+# Acá va a estar el set de datos iniciales del sistema. O quizás lo divida en distintos lotes de archivos, está en progreso.
