@@ -9,6 +9,11 @@ public class DatosPartido {
 
     // Constructor completo
     public DatosPartido(String ronda, Ciudad ciudad, String estadio, int goles1, int goles2) {
+        
+        if (goles1 < 0 || goles2 < 0) {
+            throw new IllegalArgumentException("Los goles no pueden ser negativos");
+        }
+
         this.ronda = ronda.trim().toUpperCase();
         this.ciudad = ciudad;
         this.estadio = estadio.trim().toUpperCase();
@@ -45,6 +50,9 @@ public class DatosPartido {
     }
 
     public void setGoles1(int goles1) {
+        if (goles1 < 0) {
+            throw new IllegalArgumentException("Los goles no pueden ser negativos");
+        }
         this.goles1 = goles1;
     }
 
@@ -53,6 +61,9 @@ public class DatosPartido {
     }
 
     public void setGoles2(int goles2) {
+        if (goles2 < 0) {
+            throw new IllegalArgumentException("Los goles no pueden ser negativos");
+        }
         this.goles2 = goles2;
     }
 }
