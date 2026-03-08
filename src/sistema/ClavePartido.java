@@ -2,6 +2,15 @@ package sistema;
 
 import java.util.Objects;
 
+/**
+ * Clase ClavePartido para el sistema Copa América 2024.
+ * Representa la clave de un partido entre dos equipos, usada para almacenar los resultados en el HashMap.
+ *
+ * Requisitos a cumplir:
+ *   - eq1 y eq2 son los dos equipos del partido, ordenados alfabéticamente por nombre (compareTo)
+ *   - equals y hashCode basados en eq1 y eq2 (sin importar el orden original de los equipos al crear la clave)
+ *   No tiene setters porque una vez creada la clave de un partido, los equipos no deberían cambiar.
+ */
 public class ClavePartido {
 
     private Equipo eq1;

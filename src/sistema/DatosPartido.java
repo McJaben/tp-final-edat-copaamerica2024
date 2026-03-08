@@ -1,5 +1,16 @@
 package sistema;
 
+/**
+ * Clase DatosPartido para el sistema Copa América 2024.
+ * Representa los datos de un partido entre dos equipos, incluyendo:
+ *   - Ronda del torneo (ej. "Grupo A", "Cuartos de Final", etc.)
+ *   - Ciudad donde se jugó el partido
+ *   Estadio específico dentro de la ciudad
+ *   Goles anotados por cada equipo
+ *
+ * Esta clase se usará para almacenar los resultados de los partidos en la estructura HashMap<ClavePartido, Lista<DatosPartido>>
+ * dentro de la clase CopaAmerica, permitiendo registrar múltiples partidos entre los mismos equipos (ej. fase de grupos y cuartos de final).
+ */
 public class DatosPartido {
     private String ronda;
     private Ciudad ciudad;

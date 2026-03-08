@@ -92,28 +92,47 @@ public class Equipo implements Comparable<Equipo> {
     // * porque la idea es que se acumulen, no que se reemplacen manualmente.
 
     /**
-     * Agrega goles a favor (usado al procesar resultados de partidos).
-     * Más seguro que setGolesAFavor porque acumula en lugar de reemplazar.
+     * Agrega goles a favor (usado al procesar resultados de partidos). Más seguro que
+     * setGolesAFavor porque acumula en lugar de reemplazar.
+     *
+     * @param goles goleas a favor a sumar (debe ser >= 0)
+     * @throws IllegalArgumentException si goles es negativo
      */
     public void agregarGolesAFavor(int goles) {
-        this.golesAFavor += goles;
+        if (goles >= 0) {
+            this.golesAFavor += goles;
+        } else {
+            throw new IllegalArgumentException("No se pueden agregar goles negativos: " + goles);
+        }
     }
 
     /**
-     * Agrega goles en contra (usado al procesar resultados de partidos).
-     * Más seguro que setGolesEnContra porque acumular en lugar de reemplazar.
-     * @param goles
+     * Agrega goles en contra (usado al procesar resultados de partidos). Más seguro que
+     * setGolesEnContra porque acumular en lugar de reemplazar.
+     *
+     * @param goles goles en contra a sumar (debe ser >= 0)
+     * @throws IllegalArgumentException si goles es negativo
      */
     public void agregarGolesEnContra(int goles) {
-        this.golesEnContra += goles;
+        if (goles >= 0) {
+            this.golesEnContra += goles;
+        } else {
+            throw new IllegalArgumentException("No se pueden agregar goles negativos: " + goles);
+        }
     }
 
     /**
-     * Agrega puntos según resultado del partido (3 victoria, 1 empate, 0 derrota).
-     * Usado automáticamente al cargar partidos desde archivo.
+     * Agrega puntos según resultado del partido (3 victoria, 1 empate, 0 derrota). Usado
+     * automáticamente al cargar partidos desde archivo.
+     *
+     * @throws IllegalArgumentException si puntos es negativo
      */
     public void agregarPuntos(int puntos) {
-        this.puntos += puntos;
+        if (puntos >= 0) {
+            this.puntos += puntos;
+        } else {
+            throw new IllegalArgumentException("No se pueden agregar puntos negativos: " + puntos);
+        }
     }
 
     /**
