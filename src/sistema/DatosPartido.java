@@ -10,6 +10,7 @@ package sistema;
  *
  * Esta clase se usará para almacenar los resultados de los partidos en la estructura HashMap<ClavePartido, Lista<DatosPartido>>
  * dentro de la clase CopaAmerica, permitiendo registrar múltiples partidos entre los mismos equipos (ej. fase de grupos y cuartos de final).
+ * Nota: No tiene setters porque una vez creado el objeto con los datos de un partido, esos datos no deberían cambiar.
  */
 public class DatosPartido {
     private String ronda;
@@ -36,45 +37,19 @@ public class DatosPartido {
         return ronda;
     }
 
-    public void setRonda(String ronda) {
-        this.ronda = ronda.trim().toUpperCase();
-    }
-
     public Ciudad getCiudad() {
         return ciudad;
-    }
-
-    public void setCiudad(Ciudad ciudad) {
-        this.ciudad = ciudad;
     }
 
     public String getEstadio() {
         return estadio;
     }
 
-    public void setEstadio(String estadio) {
-        this.estadio = estadio.trim().toUpperCase();
-    }
-
     public int getGoles1() {
         return goles1;
     }
 
-    public void setGoles1(int goles1) {
-        if (goles1 < 0) {
-            throw new IllegalArgumentException("Los goles no pueden ser negativos");
-        }
-        this.goles1 = goles1;
-    }
-
     public int getGoles2() {
         return goles2;
-    }
-
-    public void setGoles2(int goles2) {
-        if (goles2 < 0) {
-            throw new IllegalArgumentException("Los goles no pueden ser negativos");
-        }
-        this.goles2 = goles2;
     }
 }
