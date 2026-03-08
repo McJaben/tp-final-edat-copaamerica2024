@@ -6,8 +6,13 @@ package sistema;
  *
  * Estructura de almacenamiento:
  *   - Los equipos se guardan en un Árbol AVL ordenados alfabéticamente por nombre
- *   - El AVL permite búsquedas eficientes O(log n) para consultas por país
- *   - También permite listar equipos en rango [min, max] alfabético (consigna 4 del TPO)
+ *   - El AVL permite búsquedas eficientes O(log n) y listar equipos en rango [min, max] alfabético
+ * 
+ * Requisitos del dominio:
+ *   - nombre del país único como identificador (equals y hashCode por nombre, case-insensitive)
+ *   - nombre/apellido del director técnico (DT) modificable
+ *   - grupo (A, B, C o D) modificable
+ *   - puntos ganados, goles a favor y goles en contra acumulativos (se actualizan al cargar resultados de partidos)
  */
 public class Equipo implements Comparable<Equipo> {
     private final String nombre; // identificador único del equipo (nombre del país)
@@ -68,32 +73,21 @@ public class Equipo implements Comparable<Equipo> {
         return golesAFavor;
     }
 
-    // public void setGolesAFavor(int golesAFavor) {
-    //     this.golesAFavor = golesAFavor;
-    // }
-
     public int getGolesEnContra() {
         return golesEnContra;
     }
-
-    // public void setGolesEnContra(int golesEnContra) {
-    //     this.golesEnContra = golesEnContra;
-    // }
 
     public int getPuntos() {
         return puntos;
     }
 
-    // public void setPuntos(int puntos) {
-    //     this.puntos = puntos;
-    // }
-
-    // * Métodos para actualizar goles y puntos al procesar resultados de partidos. No se usan setters
-    // * porque la idea es que se acumulen, no que se reemplacen manualmente.
+    /*
+     * Métodos para actualizar goles y puntos al procesar resultados de partidos. No se usan setters
+     * porque la idea es que se acumulen, no que se reemplacen manualmente.
+     */
 
     /**
-     * Agrega goles a favor (usado al procesar resultados de partidos). Más seguro que
-     * setGolesAFavor porque acumula en lugar de reemplazar.
+     * Agrega goles a favor (usado al procesar resultados de partidos).
      *
      * @param goles goleas a favor a sumar (debe ser >= 0)
      * @throws IllegalArgumentException si goles es negativo
@@ -107,8 +101,7 @@ public class Equipo implements Comparable<Equipo> {
     }
 
     /**
-     * Agrega goles en contra (usado al procesar resultados de partidos). Más seguro que
-     * setGolesEnContra porque acumular en lugar de reemplazar.
+     * Agrega goles en contra (usado al procesar resultados de partidos).
      *
      * @param goles goles en contra a sumar (debe ser >= 0)
      * @throws IllegalArgumentException si goles es negativo
@@ -125,6 +118,7 @@ public class Equipo implements Comparable<Equipo> {
      * Agrega puntos según resultado del partido (3 victoria, 1 empate, 0 derrota). Usado
      * automáticamente al cargar partidos desde archivo.
      *
+     * @param puntos puntos a sumar (debe ser >= 0)
      * @throws IllegalArgumentException si puntos es negativo
      */
     public void agregarPuntos(int puntos) {
@@ -183,6 +177,7 @@ public class Equipo implements Comparable<Equipo> {
      */
     @Override
     public String toString() {
+        // TODO: Verificar si se admite el uso de StringBuilder o si debo usar concatenación simple
         StringBuilder sb = new StringBuilder();
 
         sb.append("Equipo: ");

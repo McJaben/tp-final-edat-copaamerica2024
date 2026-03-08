@@ -12,8 +12,8 @@ import estructuras.lineales.Cola;
  *   - No dirigido: insertar A→B también inserta B→A con la misma etiqueta
  *
  * Todas las estructuras auxiliares usan ÚNICAMENTE los TDAs propios:
- *   Lista  (lineales.dinamicas.Lista)
- *   Cola   (lineales.dinamicas.Cola)
+ *   Lista  (estructuras.lineales.Lista)
+ *   Cola   (estructuras.lineales.Cola)
  *
  * API de Lista usada internamente:
  *   insertar(Object elem, int pos)  → boolean
@@ -49,7 +49,7 @@ import estructuras.lineales.Cola;
  *  listarEnAnchura()                               → Lista
  * 
  * Caminos:
- * existeCamino(T origen, T destino)               → boolean
+ *  existeCamino(T origen, T destino)               → boolean
  *  caminoMenosEscalas(T origen, T destino)         → Lista  [mínima cantidad de ciudades]
  *  caminoMenosMinutos(T origen, T destino)         → Lista  [menor tiempo de vuelo]
  *  caminoMenosMinutosSinPasar(T, T, T evitar)      → Lista  [(*) sin pasar por ciudad C]
@@ -232,10 +232,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     }
 
     /**
-     * Devuelve el objeto T almacenado en el vértice igual a 'ciudad'.
-     * Útil para modificar atributos de Ciudad (alojamiento, esSede)
-     * sin eliminar y reinsertar el vértice.
-     * Devuelve null si no existe el vértice.
+     * Devuelve el objeto T almacenado en el vértice igual a 'ciudad'. Útil para modificar atributos
+     * de Ciudad (alojamiento, esSede) sin eliminar y reinsertar el vértice. Devuelve null si no
+     * existe el vértice.
+     * @param ciudad la ciudad a obtener
+     * @return objeto T almacenado en el vértice
      */
     public T getVertice(T ciudad) {
         T resultado = null;
@@ -297,6 +298,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         visitados.insertar(nodoInicio.getElem(), visitados.longitud() + 1);
         cola.poner(nodoInicio);
         while (!cola.esVacia()) {
+            @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy encolando instancias de NodoVert
             NodoVert<T, E> actual = (NodoVert<T, E>) cola.obtenerFrente();
             cola.sacar();
             NodoAdy<T, E> ady = actual.getPrimerAdy();
@@ -379,6 +381,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
             colaCaminos.sacar();
 
             // Último elemento del camino parcial = ciudad actual
+            @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy encolando objetos T (Ciudad en TPO)
             T ultimoElem = (T) caminoActual.recuperar(caminoActual.longitud());
             NodoVert<T, E> nActual = ubicarVertice(ultimoElem);
 
