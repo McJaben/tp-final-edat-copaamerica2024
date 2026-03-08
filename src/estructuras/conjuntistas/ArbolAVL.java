@@ -585,7 +585,37 @@ public class ArbolAVL<T extends Comparable<T>> {
         this.raiz = null;
     }
 
-    // TODO: Comentar toString() a la hora de entregar el TP
+    /**
+     * Recorre la rama correspondiente y devuelve el elemento almacenado en el árbol.
+     * 
+     * @param elem el elemento a buscar
+     * @return el elemento encontrado o null si no se encuentra en el árbol
+     */
+    public T obtenerElemento(T elem) {
+        return obtenerElementoAux(this.raiz, elem);
+    }
+
+    private T obtenerElementoAux(NodoAVL<T> nodo, T elem) {
+        T resultado = null;
+
+        if (nodo != null) {
+            int comp = elem.compareTo(nodo.getElem());
+            if (comp == 0) {
+                // Caso base: lo encontramos
+                resultado = nodo.getElem();
+            } else if (comp < 0) {
+                // Es menor: buscamos solo en el subárbol izquierdo
+                resultado = obtenerElementoAux(nodo.getIzquierdo(), elem);
+            } else {
+                // Es mayor: buscamos solo en el subárbol derecho
+                resultado = obtenerElementoAux(nodo.getDerecho(), elem);
+            }
+        }
+
+        return resultado;
+    }
+
+    // No comento toString() porque se utilizará para la clase que imprime logs del sistema
     /**
      * Genera y devuelve una cadena de caracteres que indica cuál es la raíz del árbol y quiénes son
      * los hijos de cada nodo.

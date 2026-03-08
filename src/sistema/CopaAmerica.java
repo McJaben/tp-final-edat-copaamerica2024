@@ -5,20 +5,21 @@ import estructuras.grafo.Grafo;
 import estructuras.lineales.Lista;
 import sistema.Equipo; // Clase que representa a un país
 import sistema.Ciudad; // Clase que representa una sede/escala
-// import sistema.Partido; // Clase que representa un partido entre dos equipos, con rtdo y ciudad 
+import sistema.ClavePartido; // Clase que representa un partido entre dos equipos 
+import sistema.DatosPartido; // representa los datos de un partido (ronda, ciudad, estadio y goles)
 import java.util.HashMap; // Para almacenar partidos por clave (pais1, pais2) y lista de resultados
 
 public class CopaAmerica {
     // Las estructuras son privadas para que nadie las toque desde fuera
     private ArbolAVL<Equipo> equipos;
-    private Grafo<Ciudad, Integer> mapaCiudades;
-    // private HashMap<Partido, Lista> partidos; // TODO: implementar clase Partido
+    private Grafo<Ciudad, Integer> mapaCiudades; // Integer es el tiempo de vuelo en minutos
+    private HashMap<ClavePartido, Lista> partidos; // la lista es de DatosPartido
 
     public CopaAmerica() {
         // Inicializamos las estructuras
         this.equipos = new ArbolAVL<>();
         this.mapaCiudades = new Grafo<>();
-        // this.partidos = new HashMap<>();
+        this.partidos = new HashMap<>();
     }
 
     /*
@@ -58,40 +59,22 @@ public class CopaAmerica {
         return equipos.eliminar(buscador);
     }
 
-    /*
-     * ========================= CONSULTAS DE EQUIPOS =========================
-     */
+    public Equipo obtenerEquipo(String nombre) {
+        Equipo buscador = new Equipo(nombre, "", 'X');
+        return equipos.obtenerElemento(buscador);
+    }
 
-    // TODO: implementar método mostrarInfoEquipo() -> revisar si es necesario otro método en ArbolAVL
-    // public Equipo obtenerEquipo(String nombre) {
-    //     Equipo buscador = new Equipo(nombre, "", 'X');
-    //     // return equipos.obtenerElemento(buscador); // Método que se me ocurrió para obtener el
-    //     // equipo directamente desde el AVL, pero no sé si es correcto o si tengo que buscarlo
-    //     // manualmente con un recorrido
-    // }
+    public String mostrarInfoEquipo(String nombrePais) {
+        // Creamos un objeto "molde" solo con la clave para buscar en el AVL
+        Equipo e = this.obtenerEquipo(nombrePais);
+        String resultado = "Equipo no encontrado";
 
-    // public String mostrarInfoEquipo(String nombre) {
-    //     Equipo e = obtenerEquipo(nombre);
-    //     String resultado;
+        if (e != null) {
+            resultado = e.toString() + "\nDiferencia de goles: " + e.getDiferenciaGoles();
+        }
 
-    //     if (e != null) {
-    //         resultado = "Equipo: " + e.getNombre() + "\nPuntos: " + e.getPuntos()
-    //                 + "\nGoles a favor: " + e.getGolesAFavor() + "\nGoles en contra: "
-    //                 + e.getGolesEnContra() + "\nDiferencia: " + e.getDiferenciaGoles();
-    //     } else {
-    //         resultado = "Equipo no encontrado";
-    //     }
-
-    //     return resultado;
-    // }
-
-    // public String mostrarInfoEquipo(String nombrePais) {
-    //     // Creamos un objeto "molde" solo con la clave para buscar en el AVL
-    //     Equipo buscador = new Equipo(nombrePais, "DT FICTICIO", 'X'); // El DT y grupo no importan para la búsqueda
-    //     Equipo encontrado = equipos.obtenerElemento(buscador); // implementar en AVL o buscar cómo solucionarlo
-
-    //     return (encontrado != null) ? encontrado.toString() : "Equipo no encontrado";
-    // }
+        return resultado;
+    }
 
 
 

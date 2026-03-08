@@ -1,1 +1,0 @@
-// Objeto para los resultados
