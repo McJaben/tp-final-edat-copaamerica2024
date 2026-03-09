@@ -3,6 +3,7 @@ package sistema;
 import java.util.Objects;
 
 /**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
  * Clase ClavePartido para el sistema Copa América 2024.
  * Representa la clave de un partido entre dos equipos, usada para almacenar los resultados en el HashMap.
  *

@@ -5,6 +5,15 @@ import estructuras.grafo.Grafo;
 import estructuras.lineales.Lista;
 import java.util.HashMap; // Para almacenar partidos por clave (pais1, pais2) y lista de resultados
 
+/**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
+ * Clase principal del sistema Copa América 2024.
+ * Contiene las estructuras de datos principales:
+ *  - ArbolAVL<Equipo> para almacenar los equipos participantes, ordenados alfabéticamente por nombre del país.
+ *  - Grafo<Ciudad, Integer> para representar el mapa de ciudades y rutas aéreas, con tiempos de vuelo como etiquetas.
+ *  - HashMap<ClavePartido, Lista<DatosPartido>> para representar los partidos disputados y sus datos (resultado, estadio, ronda, etc.)
+ */
+
 public class CopaAmerica {
     // Las estructuras son privadas para que nadie las toque desde fuera
     private ArbolAVL<Equipo> equipos;

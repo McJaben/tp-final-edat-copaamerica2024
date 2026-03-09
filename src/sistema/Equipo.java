@@ -1,6 +1,7 @@
 package sistema;
 
 /**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
  * Clase Equipo para el sistema Copa América 2024.
  * Representa los equipos de fútbol participantes del torneo.
  *
@@ -172,6 +173,15 @@ public class Equipo implements Comparable<Equipo> {
             iguales = this.nombre.equalsIgnoreCase(otro.getNombre());
         }
         return iguales;
+    }
+
+    /**
+     * El hasCode es necesario para el correcto funcionamiento del HashMap con ClavePartido.
+     * @return int hash code basado únicament en el nombre del equipo (case-insensitive)
+     */
+    @Override
+    public int hashCode() {
+        return nombre.toLowerCase().hashCode();
     }
 
     /**

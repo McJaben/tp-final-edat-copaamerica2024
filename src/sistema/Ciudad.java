@@ -1,6 +1,7 @@
 package sistema;
 
 /**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
  * Clase Ciudad para el sistema Copa América 2024.
  * Representa los vértices del Grafo<Ciudad, Integer>.
  *

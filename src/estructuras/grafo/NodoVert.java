@@ -1,6 +1,7 @@
 package estructuras.grafo;
 
 /**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
  * Nodo Vértice para el TDA Grafo etiquetado.
  * Cada NodoVert representa una Ciudad en el mapa de Copa América.
  * 

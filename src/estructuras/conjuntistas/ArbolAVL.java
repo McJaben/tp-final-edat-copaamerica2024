@@ -4,11 +4,12 @@ import estructuras.lineales.Lista;
 import estructuras.lineales.Cola;
 
 /**
- * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar> Clase Árbol Binario AVL. Este
- *         tipo de árboles, como se mantienen balanceados, se puede asegurar que en el peor de los
- *         casos son de orden O(log n). Si bien las operaciones de inserción y eliminación tienen un
- *         costo extra (el balanceo), si el cálculo de la altura se hace de manera constante, el
- *         orden de insertar o eliminar se mantiene en O(log n)
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
+ * 
+ *         Clase Árbol Binario AVL. Este tipo de árboles, como se mantienen balanceados, se puede
+ *         asegurar que en el peor de los casos son de orden O(log n). Si bien las operaciones de
+ *         inserción y eliminación tienen un costo extra (el balanceo), si el cálculo de la altura
+ *         se hace de manera constante, el orden de insertar o eliminar se mantiene en O(log n)
  */
 
 public class ArbolAVL<T extends Comparable<T>> {

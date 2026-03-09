@@ -4,6 +4,7 @@ import estructuras.lineales.Lista;
 import estructuras.lineales.Cola;
 
 /**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
  * TDA Grafo etiquetado NO dirigido — Implementación con listas de adyacencia.
  *
  * Dominio: Mapa de ciudades de EEUU con rutas aéreas para Copa América 2024.

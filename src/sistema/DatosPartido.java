@@ -1,6 +1,7 @@
 package sistema;
 
 /**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
  * Clase DatosPartido para el sistema Copa América 2024.
  * Representa los datos de un partido entre dos equipos, incluyendo:
  *   - Ronda del torneo (ej. "Grupo A", "Cuartos de Final", etc.)
@@ -51,5 +52,12 @@ public class DatosPartido {
 
     public int getGoles2() {
         return goles2;
+    }
+
+    // método toString() para debugging y visualización de datos
+    @Override
+    public String toString() {
+        return "Ronda: " + ronda + " | Ciudad: " + ciudad.getNombre() + " | Estadio: " + estadio
+                + " | Resultado: " + goles1 + "-" + goles2;
     }
 }
