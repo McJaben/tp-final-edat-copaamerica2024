@@ -102,9 +102,13 @@ public class CopaAmerica {
      * @return
      */
     public boolean agregarRuta(String origen, String destino, int tiempo) {
-        Ciudad c1 = new Ciudad(origen, false, false);
-        Ciudad c2 = new Ciudad(destino, false, false);
-        return mapaCiudades.insertarArco(c1, c2, tiempo);
+        boolean exito = false;
+        if (tiempo >= 0) {
+            Ciudad c1 = new Ciudad(origen, false, false);
+            Ciudad c2 = new Ciudad(destino, false, false);
+            exito = mapaCiudades.insertarArco(c1, c2, tiempo);
+        }
+        return exito;
     }
 
     // * ========================= EQUIPOS =========================
@@ -205,6 +209,22 @@ public class CopaAmerica {
 
     // * ==================== PARTIDOS ====================
 
+    // Alta de partidos y actualización de estadísticas de equipos (punto 3 del TPO)
+
+    /**
+     * Agrega un partido entre dos equipos, con su resultado y datos asociados. Actualiza las
+     * estadísticas de los equipos involucrados (puntos, goles a favor y en contra) según el
+     * resultado del partido.
+     * 
+     * @param nombreEq1 nombre del equipo 1 (país)
+     * @param nombreEq2 nombre del equipo 2 (país)
+     * @param ronda ronda del partido (ej. "Fase de grupos", "Semifinal", etc.)
+     * @param nombreCiudad nombre de la ciudad donde se disputó el partido
+     * @param estadio estadio donde se jugó el partido
+     * @param goles1 goles a favor del equipo 1
+     * @param goles2 goles a favor del equipo 2
+     * @return
+     */
     public boolean agregarPartido(String nombreEq1, String nombreEq2, String ronda,
             String nombreCiudad, String estadio, int goles1, int goles2) {
 
