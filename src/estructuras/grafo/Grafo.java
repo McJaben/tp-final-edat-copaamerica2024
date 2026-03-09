@@ -10,6 +10,7 @@ import estructuras.lineales.Cola;
  *   - Vértices : objetos Ciudad (nombre único, alojamiento, esSede)
  *   - Etiquetas: tiempo de vuelo directo en minutos (tipo E, ej. Integer)
  *   - No dirigido: insertar A→B también inserta B→A con la misma etiqueta
+ *   - No se permiten arcos duplicados entre el mismo par de vértices.
  *
  * Todas las estructuras auxiliares usan ÚNICAMENTE los TDAs propios:
  *   Lista  (estructuras.lineales.Lista)
@@ -103,15 +104,17 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     }
 
     /**
-     * Elimina de la lista de adyacentes de 'origen' el primer NodoAdy
-     * que apunte exactamente al NodoVert 'destino' (comparación de referencia).
+     * Elimina de la lista de adyacentes de 'origen' el primer NodoAdy que apunte exactamente al
+     * NodoVert 'destino' (comparación de referencia).
      */
     private void desenlazarAdyacente(NodoVert<T, E> origen, NodoVert<T, E> destino) {
-        NodoAdy<T, E> actual   = origen.getPrimerAdy();
+        NodoAdy<T, E> actual = origen.getPrimerAdy();
         NodoAdy<T, E> anterior = null;
+        // la comparación por referencia es intencional: el NodoVert destino viene siempre
+        // de ubicarVertice(), que devuelve la referencia exacta al nodo del grafo.
         while (actual != null && !actual.getVertice().equals(destino)) {
             anterior = actual;
-            actual   = actual.getSigAdyacente();
+            actual = actual.getSigAdyacente();
         }
         if (actual != null) {
             if (anterior == null) {
@@ -126,12 +129,13 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     /**
      * Inserta 'ciudad' como nuevo vértice si no existe ya uno igual.
+     * 
      * @param ciudad el elemento a insertar en el vértice
      * @return true si se insertó correctamente, false si ya existía un vértice igual
      */
     public boolean insertarVertice(T ciudad) {
         boolean exito = false;
-        if (ubicarVertice(ciudad) == null) {
+        if (this.ubicarVertice(ciudad) == null) {
             this.inicio = new NodoVert<>(ciudad, this.inicio);
             exito = true;
         }
@@ -147,13 +151,13 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public boolean eliminarVertice(T ciudad) {
         boolean exito = false;
-        NodoVert<T, E> aBorrar = ubicarVertice(ciudad);
+        NodoVert<T, E> aBorrar = this.ubicarVertice(ciudad);
         if (aBorrar != null) {
             // Paso 1 — eliminar arcos entrantes desde el resto de vértices
             NodoVert<T, E> aux = this.inicio;
             while (aux != null) {
                 if (!aux.equals(aBorrar)) {
-                    desenlazarAdyacente(aux, aBorrar);
+                    this.desenlazarAdyacente(aux, aBorrar);
                 }
                 aux = aux.getSigVertice();
             }
@@ -180,21 +184,27 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      * @return true si existe el vértice, false en caso contrario.
      */
     public boolean existeVertice(T ciudad) {
-        return ubicarVertice(ciudad) != null;
+        return this.ubicarVertice(ciudad) != null;
     }
 
     /**
-     * Inserta un arco NO dirigido entre origen y destino con la etiqueta dada.
-     * Crea A→B y B→A con la misma etiqueta.
-     * No controla arcos duplicados: verificar con existeArco() si se desea evitarlos.
+     * Inserta un arco NO dirigido entre origen y destino con la etiqueta dada. Crea A→B y B→A con
+     * la misma etiqueta. Se evita que se inserten arcos duplicados, dado que el dominio menciona
+     * más aerolíneas, tipos de vuelo o frecuencias entre las mismas ciudades.
+     * 
+     * @param origen ciudad de origen del arco
+     * @param destino ciudad de destino del arco
+     * @param etiqueta tiempo de vuelo directo en minutos (debe ser >= 0)
+     * @return true si se insertó correctamente, false si no existen los vértices o si ya existía el
+     *         arco
      */
     public boolean insertarArco(T origen, T destino, E etiqueta) {
         boolean exito = false;
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
-        if (nOrigen != null && nDestino != null) {
-            enlazarAdyacente(nOrigen,  nDestino, etiqueta);
-            enlazarAdyacente(nDestino, nOrigen,  etiqueta);   // no dirigido
+        NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
+        if (nOrigen != null && nDestino != null && !this.existeArco(origen, destino)) {
+            this.enlazarAdyacente(nOrigen, nDestino, etiqueta);
+            this.enlazarAdyacente(nDestino, nOrigen, etiqueta); // no dirigido
             exito = true;
         }
         return exito;
@@ -205,11 +215,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public boolean eliminarArco(T origen, T destino) {
         boolean exito = false;
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
+        NodoVert<T, E> nOrigen  = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
         if (nOrigen != null && nDestino != null) {
-            desenlazarAdyacente(nOrigen,  nDestino);
-            desenlazarAdyacente(nDestino, nOrigen);
+            this.desenlazarAdyacente(nOrigen,  nDestino);
+            this.desenlazarAdyacente(nDestino, nOrigen);
             exito = true;
         }
         return exito;
@@ -220,7 +230,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public boolean existeArco(T origen, T destino) {
         boolean existe = false;
-        NodoVert<T, E> nOrigen = ubicarVertice(origen);
+        NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
         if (nOrigen != null) {
             NodoAdy<T, E> ady = nOrigen.getPrimerAdy();
             while (ady != null && !existe) {
@@ -246,7 +256,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public T getVertice(T ciudad) {
         T resultado = null;
-        NodoVert<T, E> nodo = ubicarVertice(ciudad);
+        NodoVert<T, E> nodo = this.ubicarVertice(ciudad);
         if (nodo != null) {
             resultado = nodo.getElem();
         }
@@ -264,19 +274,19 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         NodoVert<T, E> aux = this.inicio;
         while (aux != null) {
             if (visitados.localizar(aux.getElem()) < 0) {
-                profundidadAux(aux, visitados);
+                this.listarEnProfundidadAux(aux, visitados);
             }
             aux = aux.getSigVertice();
         }
         return visitados;
     }
 
-    private void profundidadAux(NodoVert<T, E> n, Lista visitados) {
+    private void listarEnProfundidadAux(NodoVert<T, E> n, Lista visitados) {
         visitados.insertar(n.getElem(), visitados.longitud() + 1);
         NodoAdy<T, E> ady = n.getPrimerAdy();
         while (ady != null) {
             if (visitados.localizar(ady.getVertice().getElem()) < 0) {
-                profundidadAux(ady.getVertice(), visitados);
+                this.listarEnProfundidadAux(ady.getVertice(), visitados);
             }
             ady = ady.getSigAdyacente();
         }
@@ -292,7 +302,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         NodoVert<T, E> aux = this.inicio;
         while (aux != null) {
             if (visitados.localizar(aux.getElem()) < 0) {
-                anchuraAux(aux, visitados);
+                this.anchuraAux(aux, visitados);
             }
             aux = aux.getSigVertice();
         }
@@ -326,11 +336,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public boolean existeCamino(T origen, T destino) {
         boolean existe = false;
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
+        NodoVert<T, E> nOrigen  = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
         if (nOrigen != null && nDestino != null) {
             Lista visitados = new Lista();
-            existe = existeCaminoAux(nOrigen, destino, visitados);
+            existe = this.existeCaminoAux(nOrigen, destino, visitados);
         }
         return existe;
     }
@@ -344,7 +354,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
             NodoAdy<T, E> ady = actual.getPrimerAdy();
             while (ady != null && !encontrado) {
                 if (visitados.localizar(ady.getVertice().getElem()) < 0) {
-                    encontrado = existeCaminoAux(ady.getVertice(), destino, visitados);
+                    encontrado = this.existeCaminoAux(ady.getVertice(), destino, visitados);
                 }
                 ady = ady.getSigAdyacente();
             }
@@ -357,56 +367,56 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     /**
      * Devuelve el camino de A a B que pasa por la mínima cantidad de ciudades.
      *
-     * Algoritmo: BFS — el primer camino completo encontrado en BFS es el de
-     * menos saltos, por la propiedad de exploración nivel a nivel.
+     * Algoritmo: BFS — el primer camino completo encontrado en BFS es el de menos saltos, por la
+     * propiedad de exploración nivel a nivel.
      *
-     * La Cola guarda objetos Lista, donde cada Lista es el camino recorrido
-     * hasta ese punto. Cuando se llega al destino se devuelve esa Lista.
+     * La Cola guarda objetos Lista, donde cada Lista es el camino recorrido hasta ese punto. Cuando
+     * se llega al destino se devuelve esa Lista.
      *
      * Devuelve Lista vacía si algún vértice no existe o no hay camino.
      */
     public Lista caminoMenosEscalas(T origen, T destino) {
         Lista resultado = new Lista();
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
+        NodoVert<T, E> nOrigen = ubicarVertice(origen);
         NodoVert<T, E> nDestino = ubicarVertice(destino);
-        if (nOrigen == null || nDestino == null) {
-            return resultado;
-        }
+        if (nOrigen != null && nDestino != null) {
+            Lista visitados = new Lista();
+            visitados.insertar(origen, 1);
 
-        Lista visitados = new Lista();
-        visitados.insertar(origen, 1);
+            // La Cola almacena Listas; cada Lista es un camino parcial
+            Cola colaCaminos = new Cola();
+            Lista caminoInicial = new Lista();
+            caminoInicial.insertar(origen, 1);
+            colaCaminos.poner(caminoInicial);
 
-        // La Cola almacena Listas; cada Lista es un camino parcial
-        Cola colaCaminos = new Cola();
-        Lista caminoInicial = new Lista();
-        caminoInicial.insertar(origen, 1);
-        colaCaminos.poner(caminoInicial);
+            while (!colaCaminos.esVacia() && resultado.esVacia()) {
+                Lista caminoActual = (Lista) colaCaminos.obtenerFrente();
+                colaCaminos.sacar();
 
-        while (!colaCaminos.esVacia() && resultado.esVacia()) {
-            Lista caminoActual = (Lista) colaCaminos.obtenerFrente();
-            colaCaminos.sacar();
+                // Último elemento del camino parcial = ciudad actual
+                @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy
+                                               // encolando objetos T (Ciudad en TPO)
+                T ultimoElem = (T) caminoActual.recuperar(caminoActual.longitud());
+                NodoVert<T, E> nActual = this.ubicarVertice(ultimoElem);
 
-            // Último elemento del camino parcial = ciudad actual
-            @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy encolando objetos T (Ciudad en TPO)
-            T ultimoElem = (T) caminoActual.recuperar(caminoActual.longitud());
-            NodoVert<T, E> nActual = ubicarVertice(ultimoElem);
-
-            NodoAdy<T, E> ady = nActual.getPrimerAdy();
-            while (ady != null) {
-                T elemAdy = ady.getVertice().getElem();
-                if (visitados.localizar(elemAdy) < 0) {
-                    Lista nuevoCamino = caminoActual.clone();
-                    nuevoCamino.insertar(elemAdy, nuevoCamino.longitud() + 1);
-                    if (elemAdy.equals(destino)) {
-                        resultado = nuevoCamino;   // primer camino completo en BFS
-                        break;
+                NodoAdy<T, E> ady = nActual.getPrimerAdy();
+                while (ady != null) {
+                    T elemAdy = ady.getVertice().getElem();
+                    if (visitados.localizar(elemAdy) < 0) {
+                        Lista nuevoCamino = caminoActual.clone();
+                        nuevoCamino.insertar(elemAdy, nuevoCamino.longitud() + 1);
+                        if (elemAdy.equals(destino)) {
+                            resultado = nuevoCamino; // primer camino completo en BFS
+                            break;
+                        }
+                        visitados.insertar(elemAdy, visitados.longitud() + 1);
+                        colaCaminos.poner(nuevoCamino);
                     }
-                    visitados.insertar(elemAdy, visitados.longitud() + 1);
-                    colaCaminos.poner(nuevoCamino);
+                    ady = ady.getSigAdyacente();
                 }
-                ady = ady.getSigAdyacente();
             }
         }
+
         return resultado;
     }
 
@@ -428,21 +438,19 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public Lista caminoMenosMinutos(T origen, T destino) {
         Lista mejorCamino = new Lista();
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
-        if (nOrigen == null || nDestino == null) {
-            return mejorCamino;
+        NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
+        if (nOrigen != null && nDestino != null) {
+            Lista caminoActual = new Lista();
+            caminoActual.insertar(origen, 1);
+            int[] menosMinutos = {Integer.MAX_VALUE};
+            this.caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
         }
-        Lista caminoActual = new Lista();
-        caminoActual.insertar(origen, 1);
-        int[] menosMinutos = {Integer.MAX_VALUE};
-        caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
         return mejorCamino;
     }
 
-    private void caminoMenosMinutosAux(NodoVert<T, E> actual, T destino,
-                                        Lista caminoActual, int minutosAcum,
-                                        int[] menosMinutos, Lista mejorCamino) {
+    private void caminoMenosMinutosAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+            int minutosAcum, int[] menosMinutos, Lista mejorCamino) {
         if (actual.getElem().equals(destino)) {
             if (minutosAcum < menosMinutos[0]) {
                 menosMinutos[0] = minutosAcum;
@@ -454,14 +462,14 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         } else {
             NodoAdy<T, E> ady = actual.getPrimerAdy();
             while (ady != null) {
-                T elemAdy       = ady.getVertice().getElem();
-                int tiempoAdy   = (Integer) ady.getEtiqueta();
+                T elemAdy = ady.getVertice().getElem();
+                int tiempoAdy = (Integer) ady.getEtiqueta();
                 int nuevoTiempo = minutosAcum + tiempoAdy;
                 if (caminoActual.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) {
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
-                    caminoMenosMinutosAux(ady.getVertice(), destino, caminoActual,
-                                          nuevoTiempo, menosMinutos, mejorCamino);
-                    caminoActual.eliminar(caminoActual.longitud());   // backtracking
+                    this.caminoMenosMinutosAux(ady.getVertice(), destino, caminoActual, nuevoTiempo,
+                            menosMinutos, mejorCamino);
+                    caminoActual.eliminar(caminoActual.longitud()); // backtracking
                 }
                 ady = ady.getSigAdyacente();
             }
@@ -483,16 +491,15 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public Lista caminoMenosMinutosSinPasar(T origen, T destino, T ciudadEvitar) {
         Lista mejorCamino = new Lista();
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
-        if (nOrigen == null || nDestino == null) {
-            return mejorCamino;
+        NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
+        if (nOrigen != null && nDestino != null) {
+            Lista caminoActual = new Lista();
+            caminoActual.insertar(origen, 1);
+            caminoActual.insertar(ciudadEvitar, 2); // bloqueo preventivo de C
+            int[] menosMinutos = {Integer.MAX_VALUE};
+            this.caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
         }
-        Lista caminoActual = new Lista();
-        caminoActual.insertar(origen,       1);
-        caminoActual.insertar(ciudadEvitar, 2);   // bloqueo preventivo de C
-        int[] menosMinutos = {Integer.MAX_VALUE};
-        caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
         return mejorCamino;
     }
 
@@ -509,19 +516,18 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public Lista todosLosCaminos(T origen, T destino) {
         Lista todos = new Lista();
-        NodoVert<T, E> nOrigen  = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
-        if (nOrigen == null || nDestino == null) {
-            return todos;
+        NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
+        if (nOrigen != null && nDestino != null) {
+            Lista caminoActual = new Lista();
+            caminoActual.insertar(origen, 1);
+            this.todosLosCaminosAux(nOrigen, destino, caminoActual, todos);
         }
-        Lista caminoActual = new Lista();
-        caminoActual.insertar(origen, 1);
-        todosLosCaminosAux(nOrigen, destino, caminoActual, todos);
         return todos;
     }
 
-    private void todosLosCaminosAux(NodoVert<T, E> actual, T destino,
-                                     Lista caminoActual, Lista todos) {
+    private void todosLosCaminosAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+            Lista todos) {
         if (actual.getElem().equals(destino)) {
             todos.insertar(caminoActual.clone(), todos.longitud() + 1);
         } else {
@@ -530,8 +536,8 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                 T elemAdy = ady.getVertice().getElem();
                 if (caminoActual.localizar(elemAdy) < 0) {
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
-                    todosLosCaminosAux(ady.getVertice(), destino, caminoActual, todos);
-                    caminoActual.eliminar(caminoActual.longitud());   // backtracking
+                    this.todosLosCaminosAux(ady.getVertice(), destino, caminoActual, todos);
+                    caminoActual.eliminar(caminoActual.longitud()); // backtracking
                 }
                 ady = ady.getSigAdyacente();
             }
