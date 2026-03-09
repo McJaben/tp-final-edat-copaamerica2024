@@ -9,10 +9,12 @@ package sistema;
  *   - El AVL permite búsquedas eficientes O(log n) y listar equipos en rango [min, max] alfabético
  * 
  * Requisitos del dominio:
- *   - nombre del país único como identificador (equals y hashCode por nombre, case-insensitive)
+ *   - nombre del país único como identificador (equals por nombre, case-insensitive)
  *   - nombre/apellido del director técnico (DT) modificable
  *   - grupo (A, B, C o D) modificable
  *   - puntos ganados, goles a favor y goles en contra acumulativos (se actualizan al cargar resultados de partidos)
+ * 
+ * Nota: restringí los grupos a sólo 4 para representar cómo fue realmente la Copa América 2024
  */
 public class Equipo implements Comparable<Equipo> {
     private final String nombre; // identificador único del equipo (nombre del país)
@@ -64,9 +66,16 @@ public class Equipo implements Comparable<Equipo> {
      * Permite cambiar el grupo inicial (ABM — consigna 2 del TPO).
      * Útil si hay reestructuración del torneo o error en la carga.
      * Valores válidos: 'A', 'B', 'C', 'D'.
+     * @param grupo el nuevo grupo del equipo (A, B, C o D)
+     * @throws IllegalArgumentException si el grupo recibido no es válido
      */
     public void setGrupo(char grupo) {
-        this.grupo = Character.toUpperCase(grupo);
+        char g = Character.toUpperCase(grupo);
+        if (g == 'A' || g == 'B' || g == 'C' || g == 'D') {
+            this.grupo = Character.toUpperCase(grupo);
+        } else {
+            throw new IllegalArgumentException("Grupo inválido: " + grupo + ". Debe ser A, B, C o D.");
+        }
     }
 
     public int getGolesAFavor() {
@@ -163,12 +172,6 @@ public class Equipo implements Comparable<Equipo> {
             iguales = this.nombre.equalsIgnoreCase(otro.getNombre());
         }
         return iguales;
-    }
-
-    // El hashCode es consistente con equals, basado en el nombre del país (case-insensitive).
-    @Override
-    public int hashCode() {
-        return this.nombre.toUpperCase().hashCode();
     }
 
     /**

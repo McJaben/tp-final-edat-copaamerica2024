@@ -126,6 +126,8 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     /**
      * Inserta 'ciudad' como nuevo vértice si no existe ya uno igual.
+     * @param ciudad el elemento a insertar en el vértice
+     * @return true si se insertó correctamente, false si ya existía un vértice igual
      */
     public boolean insertarVertice(T ciudad) {
         boolean exito = false;
@@ -140,6 +142,8 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      * Elimina el vértice igual a 'ciudad' y todos los arcos que lo involucran.
      * Paso 1: recorre todos los demás vértices y les quita el arco hacia 'ciudad'.
      * Paso 2: desconecta el propio NodoVert de la lista de vértices.
+     * @param ciudad el elemento del vértice a eliminar
+     * @return true si se eliminó correctamente, false si no existía el vértice
      */
     public boolean eliminarVertice(T ciudad) {
         boolean exito = false;
@@ -172,6 +176,8 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     /**
      * Devuelve true si existe un vértice con elem igual a 'ciudad'.
+     * @param ciudad el elemento a buscar en los vértices
+     * @return true si existe el vértice, false en caso contrario.
      */
     public boolean existeVertice(T ciudad) {
         return ubicarVertice(ciudad) != null;
@@ -541,6 +547,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     @Override
     public String toString() {
+        // TODO: Verificar si se admite el uso de StringBuilder o si debo usar concatenación simple
         StringBuilder sb = new StringBuilder();
         if (this.inicio == null) {
             sb.append("Grafo vacío\n");

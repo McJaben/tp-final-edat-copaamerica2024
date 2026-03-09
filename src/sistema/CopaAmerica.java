@@ -20,38 +20,87 @@ public class CopaAmerica {
 
     // * ========================= CIUDADES =========================
 
+    // ABM de ciudades y rutas aéreas (punto 1 del TPO)
+
+    /*
+     * NOTA: aclaración de la decisión tomada en métodos modificarCiudad y modificarEquipo:
+     ! Utilicé las clases envolventes de Java para permitir pasar null si no se quiere modificar ese atributo.
+     ! Si no uso estos Wrappers, debería obligar a que siempre se pasen los 3 parámetros y el usuario recuerde
+     ! el valor actual de cada atributo modificable, aunque sólo quiera cambiar uno de estos.
+     ! Otra alternativa sería crear un método específico para modificar cada atributo, pero considero que
+     ! este enfoque es más limpio. Además, es más cómodo para el usuario que cargará los datos desde el menú.
+     * Para las altas dejé los parámetros como tipos primitivos porque no tiene sentido que falte alguno al 
+     * momento de crear el objeto por primera vez.
+     */
+
+    /**
+     * Alta de una ciudad en el sistema.
+     * @param nombre de la ciudad (único, case-insensitive)
+     * @param alojamiento boolean que indica si la ciudad tiene un alojamiento disponible
+     * @param esSede boolean que indica si la ciudad es sede de la Copa América
+     * @return true si se agregó correctamente, false en caso contrario (ej. si ya existe)
+     */
     public boolean agregarCiudad(String nombre, boolean alojamiento, boolean esSede) {
         Ciudad ciudad = new Ciudad(nombre, alojamiento, esSede);
         return mapaCiudades.insertarVertice(ciudad);
     }
 
+    /**
+     * Baja de una ciudad en el sistema
+     * @param nombre de la ciudad (único, case-insensitive)
+     * @return true si se eliminó correctamente, false en caso contrario (ej. si no existe)
+     */
     public boolean eliminarCiudad(String nombre) {
         Ciudad buscada = new Ciudad(nombre, false, false);
         return mapaCiudades.eliminarVertice(buscada); // elimina vértice y todas sus rutas
     }
 
+    /**
+     * Modificación de una ciudad en el sistema
+     * Implementa lógica de "actualización parcial" mediante el uso de clases Wrapper, 
+     * permitiendo valores nulos para ignorar atributos que no se deseen modificar.
+     * 
+     * @param nombre de la ciudad (único, case-insensitive)
+     * @param alojamiento boolean que indica si la ciudad tiene un alojamiento disponible
+     * @param esSede boolean que indica si la ciudad es sede de la Copa América
+     * @return true si se agregó correctamente, false en caso contrario (ej. si ya existe)
+     */
     public boolean modificarCiudad(String nombre, Boolean nuevoAlojamiento, Boolean nuevaSede) {
         boolean exito = false;
         Ciudad ciudad = this.obtenerCiudad(nombre);
-        if (ciudad != null) {
+        boolean sePuedeModificar = (ciudad != null && (nuevoAlojamiento != null || nuevaSede != null));
+        if (sePuedeModificar) {
             if (nuevoAlojamiento != null) {
                 ciudad.setTieneAlojamiento(nuevoAlojamiento);
-                exito = true;
             }
             if (nuevaSede != null) {
                 ciudad.setEsSede(nuevaSede);
-                exito = true;
             }
+            exito = true;
         }
         return exito;
     }
 
+    /**
+     * Método auxiliar para obtener el nodo de una ciudad a partir de su nombre.
+     * El método getVertice devuelve la referencia al objeto Ciudad almacenado en el grafo.
+     * Gracias a esto se puede modificar el objeto correcto directamente sin necesidad de reinserción.
+     * 
+     * @param nombre de la ciudad a buscar
+     * @return referencia al objeto Ciudad si se encuentra, null en caso contrario
+     */
     public Ciudad obtenerCiudad(String nombre) {
-        // Se asume que el grafo tiene un método obtenerVertice que busca por igualdad
         Ciudad aux = new Ciudad(nombre, false, false);
         return mapaCiudades.getVertice(aux);
     }
 
+    /**
+     * Agrega una ruta aérea entre dos ciudades con el tiempo de vuelo en minutos.
+     * @param origen nombre de la ciudad de origen
+     * @param destino nombre de la ciudad de destino
+     * @param tiempo tiempo de vuelo en minutos (debe ser >= 0)
+     * @return
+     */
     public boolean agregarRuta(String origen, String destino, int tiempo) {
         Ciudad c1 = new Ciudad(origen, false, false);
         Ciudad c2 = new Ciudad(destino, false, false);
@@ -60,49 +109,93 @@ public class CopaAmerica {
 
     // * ========================= EQUIPOS =========================
     
+    // ABM de equipos (punto 2 del TPO)
+
+    /**
+     * Alta de un equipo en el sistema.
+     * @param nombre Clave única del equipo (país).
+     * @param dt Director Técnico del equipo.
+     * @param grupo grupo asignado (A, B, C o D)
+     * @return true si se agregó correctamente, false en caso contrario (ej. si ya existe)
+     */
     public boolean agregarEquipo(String nombre, String dt, char grupo) {
         Equipo nuevo = new Equipo(nombre, dt, grupo);
         return equipos.insertar(nuevo);
     }
 
+    /**
+     * Baja de un equipo en el sistema.
+     * @param nombre del país del equipo (único, case-insensitive)
+     * @return true si se eliminó correctamente, false en caso contrario (ej. si no existe)
+     */
     public boolean eliminarEquipo(String nombre) {
-        Equipo buscador = new Equipo(nombre, "", 'X');
-        return equipos.eliminar(buscador);
+        Equipo buscado = new Equipo(nombre, "", 'X');
+        return equipos.eliminar(buscado);
     }
 
+    /**
+     * Modifica los datos de un equipo existente. 
+     * Implementa lógica de "actualización parcial" mediante el uso de clases Wrapper, 
+     * permitiendo valores nulos para ignorar atributos que no se deseen modificar.
+     * 
+     * @param nombre Clave única del equipo (país).
+     * @param nuevoDT Nuevo Director Técnico (opcional, pasar null para no modificar).
+     * @param nuevoGrupo Nuevo grupo asignado (opcional, pasar null para no modificar).
+     * @return true si el equipo existía y fue modificado, false en caso contrario.
+     */
     public boolean modificarEquipo(String nombre, String nuevoDT, Character nuevoGrupo) {
         boolean exito = false;
         Equipo equipo = obtenerEquipo(nombre);
-        if (equipo != null && (nuevoDT != null || nuevoGrupo != null)) {
-            if (nuevoDT != null) equipo.setDirectorTecnico(nuevoDT);
-            if (nuevoGrupo != null) equipo.setGrupo(nuevoGrupo); // pruebo esta sintáxis de if inline
+        boolean sePuedeModificar = (equipo != null && (nuevoDT != null || nuevoGrupo != null));
+        if (sePuedeModificar) {
+            if (nuevoDT != null) {
+                equipo.setDirectorTecnico(nuevoDT);
+            }
+            if (nuevoGrupo != null) {
+                equipo.setGrupo(nuevoGrupo);
+            }
             exito = true;
         }
         return exito;
     }
 
+    /**
+     * Método auxiliar para obtener el equipo dentro del AVL a partir de su nombre.
+     * El método obtenerElemento devuelve la referencia al objeto Equipo almacenado en el grafo.
+     * Gracias a esto se puede modificar el objeto correcto directamente sin necesidad de reinserción.
+     * 
+     * @param nombre del equipo a buscar
+     * @return referencia al objeto Equipo si se encuentra, null en caso contrario
+     */
     public Equipo obtenerEquipo(String nombre) {
         Equipo buscador = new Equipo(nombre, "", 'X');
         return equipos.obtenerElemento(buscador);
     }
 
+    /**
+     * Muestra la información de un equipo, incluyendo su diferencia de goles (a favor - en contra).
+     * Punto 4, inciso 1 del TPO.
+     * 
+     * @param nombrePais
+     * @return String con la información del equipo o mensaje de error si el equipo no existe.
+     */
     public String mostrarInfoEquipo(String nombrePais) {
         // Creamos un objeto "molde" solo con la clave para buscar en el AVL
         Equipo e = this.obtenerEquipo(nombrePais);
         String resultado = "Equipo no encontrado";
-
         if (e != null) {
             resultado = e.toString() + "\nDiferencia de goles: " + e.getDiferenciaGoles();
         }
-
         return resultado;
     }
 
     /**
-     * Listar equipos en orden alfabético dentro de un rango (ABM - consigna 4 del TPO)
-     * @param min
-     * @param max
-     * @return
+     * Listar equipos en orden alfabético dentro de un rango (consigna 4 del TPO)
+     * 
+     * @param min nombre mínimo del rango (inclusive)
+     * @param max nombre máximo del rango (inclusive)
+     * @return Lista de equipos dentro del rango, ordenados alfabéticamente, o null si no hay
+     *         equipos dentro del rango
      */
     public Lista equiposEnRango(String min, String max) {
         Equipo minEq = new Equipo(min, "", 'A');
@@ -163,6 +256,8 @@ public class CopaAmerica {
             eq2.agregarPuntos(1);
         }
     }
+
+    // ! No hay baja ni modificación de partidos, dado que el punto 3 del TPO sólo menciona "Altas"
 
     /**
      * Devuelve una lista de DatosPartido entre dos equipos, o null si no existen los equipos o no
@@ -309,6 +404,7 @@ public class CopaAmerica {
     // * ==================== MOSTRAR SISTEMA ====================
 
     public String mostrarEstructuras() {
+        // TODO: Verificar si se admite el uso de StringBuilder o si debo usar concatenación simple
         StringBuilder sb = new StringBuilder();
         sb.append("===== EQUIPOS (AVL) =====\n");
         sb.append(equipos.toString()); // asume que el AVL tiene toString en orden
