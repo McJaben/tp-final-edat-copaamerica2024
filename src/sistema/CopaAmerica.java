@@ -1,6 +1,7 @@
 package sistema;
 
 import estructuras.conjuntistas.ArbolAVL;
+import estructuras.conjuntistas.HeapMin;
 import estructuras.grafo.Grafo;
 import estructuras.lineales.Lista;
 import java.util.HashMap; // Para almacenar partidos por clave (pais1, pais2) y lista de resultados
@@ -403,31 +404,84 @@ public class CopaAmerica {
     // * ==================== LISTA ORDENADA POR GOLES ====================
 
     /**
-     * @return Lista de equipos ordenada por goles a favor (descendente).
+     * Genera una lista de equipos ordenados de mayor a menor según goles a favor. 
+     * Justificación: Se utiliza un HeapMin como estructura auxiliar para mejorar la eficiencia 
+     * de O(n^2) (con listas y doble for) a O(n log n) para optimizar el uso de estructuras de datos.
+     * 
+     * @return Lista de objetos Equipo ordenada descendentemente por goles.
      */
-    public Lista equiposOrdenadosPorGoles() {
-        // Obtener todos los equipos en orden alfabético
-        Lista todos = equipos.listar();
-        // Crear una nueva lista para ordenar (no se guarda)
-        Lista ordenada = new Lista();
-        for (int i = 1; i <= todos.longitud(); i++) {
-            ordenada.insertar(todos.recuperar(i), i);
+    public Lista listarEquiposPorGoles() {
+        // Obtener todos los equipos del AVL (Inorden: O(n))
+        Lista listaOriginal = this.equipos.listar();
+        Lista listaOrdenada = new Lista();
+
+        // Usar HeapMin para ordenar de forma eficiente (O(n log n)) 
+        // El for es de orden O(n) y cada inserción es O(log n)
+        HeapMin<EquipoPorGoles> heap = new HeapMin<>();
+
+        // Carga de datos en el Heap
+        for (int i = 1; i <= listaOriginal.longitud(); i++) {
+            Equipo e = (Equipo) listaOriginal.recuperar(i);
+            // El heap utiliza EquipoPorGoles para decidir la prioridad
+            heap.insertar(new EquipoPorGoles(e));
         }
-        // Ordenamiento por selección (descendente por goles a favor)
-        for (int i = 1; i <= ordenada.longitud(); i++) {
-            for (int j = i + 1; j <= ordenada.longitud(); j++) {
-                Equipo e1 = (Equipo) ordenada.recuperar(i);
-                Equipo e2 = (Equipo) ordenada.recuperar(j);
-                if (e1.getGolesAFavor() < e2.getGolesAFavor()) {
-                    // Intercambiar
-                    ordenada.eliminar(i);
-                    ordenada.insertar(e2, i);
-                    ordenada.eliminar(j);
-                    ordenada.insertar(e1, j);
-                }
+
+        /*
+         * Al ser un HeapMin con compareTo invertido, recuperarCima() siempre devuelve el equipo con
+         * mayor cantidad de goles en O(1).
+         */
+        while (!heap.esVacio()) {
+            EquipoPorGoles wrap = heap.recuperarCima();
+            heap.eliminarCima(); // Reorganización en O(log n)
+
+            // Insertar el objeto Equipo original en la lista final
+            listaOrdenada.insertar(wrap.equipo, listaOrdenada.longitud() + 1);
+        }
+
+        return listaOrdenada;
+    }
+
+    /**
+     * Clase privada "Wrapper" para cambiar el criterio de comparación. Permite que el HeapMin
+     * ordene por goles sin alterar el compareTo original de la clase Equipo (que ordena por nombre
+     * para el AVL).
+     * 
+     * Justificación: Opté por esta solución para mantener la integridad en AVL y no tener que
+     * modificar la clase Equipo, porque el compareTo por nombre es necesario. Tampoco me servía
+     * implementar un segundo método para ordenamiento, dado que HeapMin sólo puede usar compareTo
+     * para decidir la prioridad. Esta clase envolvente me permite reutilizar la lógica de comparación.
+     */
+    private static class EquipoPorGoles implements Comparable<EquipoPorGoles> {
+        Equipo equipo;
+
+        EquipoPorGoles(Equipo e) {
+            this.equipo = e;
+        }
+
+        @Override
+        public int compareTo(EquipoPorGoles otro) {
+            /*
+             * Para que el HeapMin (que pone el menor en la cima) funcione como un HeapMax,
+             * comparamos los goles de 'otro' contra 'this' (se invierte el criterio).
+             */
+            int resultado;
+            int golesThis = this.equipo.getGolesAFavor();
+            int golesOtro = otro.equipo.getGolesAFavor();
+
+            if (golesThis < golesOtro) {
+                // Si yo tengo menos goles, le digo al Heap que soy "mayor" (positivo)
+                // para que me mande al fondo.
+                resultado = 1;
+            } else if (golesThis > golesOtro) {
+                // Si tengo más goles, le digo al Heap que soy "menor" (negativo)
+                // para que me suba a la cima.
+                resultado = -1;
+            } else {
+                resultado = 0;
             }
+
+            return resultado;
         }
-        return ordenada;
     }
 
     // * ==================== MOSTRAR SISTEMA ====================
