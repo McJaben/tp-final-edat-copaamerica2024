@@ -213,6 +213,9 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     /**
      * Elimina el arco entre origen y destino (en ambas direcciones).
+     * @param origen nombre de la ciudad de origen del arco a eliminar
+     * @param destino nombre de la ciudad de destino del arco a eliminar
+     * @return true si se eliminó, false en caso contrario
      */
     public boolean eliminarArco(T origen, T destino) {
         boolean exito = false;
@@ -316,6 +319,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         cola.poner(nodoInicio);
         while (!cola.esVacia()) {
             @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy encolando instancias de NodoVert
+            // Si la clase Cola fuera genérica (<T>), no haría falta este cast ni se lanzaría el warning en el IDE
             NodoVert<T, E> actual = (NodoVert<T, E>) cola.obtenerFrente();
             cola.sacar();
             NodoAdy<T, E> ady = actual.getPrimerAdy();

@@ -648,6 +648,7 @@ public class ArbolAVL<T extends Comparable<T>> {
                 // Recorremos todos los nodos del nivel actual y los insertamos en la lista
                 for (int i = 0; i < elementosEnNivel; i++) {
                     // Obtengo el nodo actual de la cola
+                    // Si la clase Cola fuera genérica (<T>), no haría falta este cast ni se lanzaría el warning en el IDE
                     @SuppressWarnings("unchecked")
                     NodoAVL<T> actual = (NodoAVL<T>) cola.obtenerFrente();
                     // Sacamos el nodo actual de la cola

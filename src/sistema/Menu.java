@@ -1,0 +1,404 @@
+package sistema;
+
+import java.util.Scanner;
+import estructuras.lineales.Lista;
+
+/**
+ * @author Benjamín Morales <benjamin.morales at est.fi.uncoma.edu.ar>
+ * Menú del sistema Copa América 2024.
+ */
+
+public class Menu {
+    private CopaAmerica copa;
+    private Scanner sc;
+
+    public Menu() {
+        copa = new CopaAmerica();
+        sc = new Scanner(System.in);
+    }
+
+    public void iniciar() {
+        int opcion;
+        do {
+            mostrarMenuPrincipal();
+            opcion = leerEntero("Ingrese opción: ");
+            switch (opcion) {
+                case 1 -> menuCiudades();
+                case 2 -> menuEquipos();
+                case 3 -> altaPartido();
+                case 4 -> consultasEquipos();
+                case 5 -> consultasPartidos();
+                case 6 -> consultasViajes();
+                case 7 -> listarEquiposPorGoles();
+                case 8 -> mostrarSistema();
+                case 9 -> cargarDatosIniciales();
+                case 0 -> System.out.println("Saliendo...");
+                default -> System.out.println("Opción inválida");
+            }
+        } while (opcion != 0);
+        sc.close();
+    }
+
+    private void mostrarMenuPrincipal() {
+        System.out.println("\n--- COPA AMÉRICA 2024 ---");
+        System.out.println("1. ABM Ciudades");
+        System.out.println("2. ABM Equipos");
+        System.out.println("3. Alta de partidos");
+        System.out.println("4. Consultas sobre equipos");
+        System.out.println("5. Consultas sobre partidos");
+        System.out.println("6. Consultas sobre viajes");
+        System.out.println("7. Listar equipos ordenados por goles a favor");
+        System.out.println("8. Mostrar sistema (debug)");
+        System.out.println("9. Cargar datos desde archivo");
+        System.out.println("0. Salir");
+    }
+
+    // Submenú de Ciudades
+    private void menuCiudades() {
+        System.out.println("\n--- ABM Ciudades ---");
+        System.out.println("1. Agregar ciudad");
+        System.out.println("2. Modificar ciudad");
+        System.out.println("3. Eliminar ciudad");
+        System.out.println("4. Agregar ruta");
+        System.out.println("5. Eliminar ruta");
+        System.out.println("0. Volver");
+        int op = leerEntero("Seleccione: ");
+        switch (op) {
+            case 1 -> agregarCiudad();
+            case 2 -> modificarCiudad();
+            case 3 -> eliminarCiudad();
+            case 4 -> agregarRuta();
+            case 5 -> eliminarRuta();
+            case 0 -> {}
+            default -> System.out.println("Opción inválida");
+        }
+    }
+
+    private void agregarCiudad() {
+        System.out.print("Nombre: ");
+        String nombre = sc.nextLine();
+        System.out.print("¿Tiene alojamiento? (true/false): ");
+        boolean aloj = leerBoolean();
+        System.out.print("¿Es sede? (true/false): ");
+        boolean sede = leerBoolean();
+        if (copa.agregarCiudad(nombre, aloj, sede))
+            System.out.println("Ciudad agregada.");
+        else
+            System.out.println("Error: la ciudad ya existe.");
+    }
+
+    private void modificarCiudad() {
+        System.out.print("Nombre de la ciudad a modificar: ");
+        String nombre = sc.nextLine();
+        System.out.print("¿Nuevo alojamiento? (vacío para no cambiar): ");
+        String alojStr = sc.nextLine();
+        Boolean aloj = alojStr.isEmpty() ? null : Boolean.parseBoolean(alojStr);
+        System.out.print("¿Nueva sede? (vacío para no cambiar): ");
+        String sedeStr = sc.nextLine();
+        Boolean sede = sedeStr.isEmpty() ? null : Boolean.parseBoolean(sedeStr);
+        if (copa.modificarCiudad(nombre, aloj, sede))
+            System.out.println("Ciudad modificada.");
+        else
+            System.out.println("Ciudad no encontrada.");
+    }
+
+    private void eliminarCiudad() {
+        System.out.print("Nombre de la ciudad a eliminar: ");
+        String nombre = sc.nextLine();
+        if (copa.eliminarCiudad(nombre))
+            System.out.println("Ciudad eliminada.");
+        else
+            System.out.println("Ciudad no encontrada o no se pudo eliminar.");
+    }
+
+    private void agregarRuta() {
+        System.out.print("Ciudad origen: ");
+        String origen = sc.nextLine();
+        System.out.print("Ciudad destino: ");
+        String destino = sc.nextLine();
+        System.out.print("Tiempo de vuelo (minutos): ");
+        int tiempo = leerEntero("");
+        if (copa.agregarRuta(origen, destino, tiempo))
+            System.out.println("Ruta agregada.");
+        else
+            System.out.println("Error: alguna ciudad no existe o la ruta ya existe.");
+    }
+
+    private void eliminarRuta() {
+        System.out.print("Ciudad origen: ");
+        String origen = sc.nextLine();
+        System.out.print("Ciudad destino: ");
+        String destino = sc.nextLine();
+        if (copa.eliminarRuta(origen, destino)) {
+            System.out.println("Ruta eliminada.");
+        } else {
+            System.out.println("Error: ruta no existe o ciudades no válidas.");
+        }
+    }
+
+    // Submenú de Equipos
+    private void menuEquipos() {
+        System.out.println("\n--- ABM Equipos ---");
+        System.out.println("1. Agregar equipo");
+        System.out.println("2. Modificar equipo");
+        System.out.println("3. Eliminar equipo");
+        System.out.println("0. Volver");
+        int op = leerEntero("Seleccione: ");
+        switch (op) {
+            case 1 -> agregarEquipo();
+            case 2 -> modificarEquipo();
+            case 3 -> eliminarEquipo();
+            case 0 -> {}
+            default -> System.out.println("Opción inválida");
+        }
+    }
+
+    private void agregarEquipo() {
+        System.out.print("Nombre del país: ");
+        String nombre = sc.nextLine();
+        System.out.print("Director técnico: ");
+        String dt = sc.nextLine();
+        System.out.print("Grupo (A/B/C/D): ");
+        char grupo = sc.nextLine().toUpperCase().charAt(0);
+        if (copa.agregarEquipo(nombre, dt, grupo))
+            System.out.println("Equipo agregado.");
+        else
+            System.out.println("Error: el equipo ya existe.");
+    }
+
+    private void modificarEquipo() {
+        System.out.print("Nombre del país a modificar: ");
+        String nombre = sc.nextLine();
+        System.out.print("Nuevo DT (vacío para no cambiar): ");
+        String dt = sc.nextLine();
+        if (dt.isEmpty()) dt = null;
+        System.out.print("Nuevo grupo (vacío para no cambiar): ");
+        String grupoStr = sc.nextLine();
+        Character grupo = grupoStr.isEmpty() ? null : grupoStr.toUpperCase().charAt(0);
+        if (copa.modificarEquipo(nombre, dt, grupo))
+            System.out.println("Equipo modificado.");
+        else
+            System.out.println("Equipo no encontrado.");
+    }
+
+    private void eliminarEquipo() {
+        System.out.print("Nombre del país a eliminar: ");
+        String nombre = sc.nextLine();
+        if (copa.eliminarEquipo(nombre))
+            System.out.println("Equipo eliminado.");
+        else
+            System.out.println("Equipo no encontrado.");
+    }
+
+    // Alta de partido
+    private void altaPartido() {
+        System.out.println("--- Alta de partido ---");
+        System.out.print("Equipo 1: ");
+        String eq1 = sc.nextLine();
+        System.out.print("Equipo 2: ");
+        String eq2 = sc.nextLine();
+        System.out.print("Ronda (ej. GRUPO, CUARTOS, SEMIFINAL, FINAL): ");
+        String ronda = sc.nextLine();
+        System.out.print("Ciudad del evento: ");
+        String ciudad = sc.nextLine();
+        System.out.print("Estadio: ");
+        String estadio = sc.nextLine();
+        System.out.print("Goles de " + eq1 + ": ");
+        int g1 = leerEntero("");
+        System.out.print("Goles de " + eq2 + ": ");
+        int g2 = leerEntero("");
+        if (copa.agregarPartido(eq1, eq2, ronda, ciudad, estadio, g1, g2))
+            System.out.println("Partido registrado.");
+        else
+            System.out.println("Error: verifique que los equipos y la ciudad existan.");
+    }
+
+    // Consultas de equipos
+    private void consultasEquipos() {
+        System.out.println("\n--- Consultas de equipos ---");
+        System.out.println("1. Mostrar información de un equipo");
+        System.out.println("2. Listar equipos en rango alfabético");
+        System.out.println("0. Volver");
+        int op = leerEntero("Seleccione: ");
+        switch (op) {
+            case 1 -> {
+                System.out.print("Nombre del país: ");
+                String nombre = sc.nextLine();
+                System.out.println(copa.mostrarInfoEquipo(nombre));
+            }
+            case 2 -> {
+                System.out.print("Límite inferior (min): ");
+                String min = sc.nextLine();
+                System.out.print("Límite superior (max): ");
+                String max = sc.nextLine();
+                Lista lista = copa.equiposEnRango(min, max);
+                if (lista == null || lista.longitud() == 0)
+                    System.out.println("No hay equipos en ese rango.");
+                else
+                    for (int i = 1; i <= lista.longitud(); i++)
+                        System.out.println(lista.recuperar(i));
+            }
+            case 0 -> {}
+            default -> System.out.println("Opción inválida");
+        }
+    }
+
+    // Consultas de partidos
+    private void consultasPartidos() {
+        System.out.println("\n--- Consultas de partidos ---");
+        System.out.print("Ingrese equipo 1: ");
+        String eq1 = sc.nextLine();
+        System.out.print("Ingrese equipo 2: ");
+        String eq2 = sc.nextLine();
+        Lista partidos = copa.obtenerPartidosEntre(eq1, eq2); // Lista de DatosPartido
+        if (partidos == null || partidos.longitud() == 0) {
+            System.out.println("No se encontraron partidos entre esos equipos.");
+        } else {
+            System.out.println("Partidos encontrados:");
+            for (int i = 1; i <= partidos.longitud(); i++) {
+                DatosPartido dp = (DatosPartido) partidos.recuperar(i);
+                System.out.println("Ronda: " + dp.getRonda() + ", Ciudad: "
+                        + dp.getCiudad().getNombre() + ", Estadio: " + dp.getEstadio()
+                        + ", Resultado: " + dp.getGoles1() + " - " + dp.getGoles2());
+            }
+        }
+    }
+
+    // Consultas de viajes
+    private void consultasViajes() {
+        System.out.println("\n--- Consultas de viajes ---");
+        System.out.print("Ciudad origen: ");
+        String origen = sc.nextLine();
+        System.out.print("Ciudad destino: ");
+        String destino = sc.nextLine();
+        System.out.println("1. Camino con mínima cantidad de ciudades");
+        System.out.println("2. Camino de menor tiempo");
+        System.out.println("3. Camino más corto evitando una ciudad");
+        System.out.println("4. Todos los caminos y filtrar por alojamiento");
+        System.out.println("0. Volver");
+        int op = leerEntero("Seleccione: ");
+        switch (op) {
+            case 1 -> mostrarCamino(copa.caminoMinimoCiudades(origen, destino),
+                    "Camino con menos ciudades");
+            case 2 -> mostrarCamino(copa.caminoMenorTiempo(origen, destino),
+                    "Camino de menor tiempo");
+            case 3 -> {
+                System.out.print("Ciudad a evitar: ");
+                String evitar = sc.nextLine();
+                mostrarCamino(copa.caminoMenorTiempoEvitando(origen, destino, evitar),
+                        "Camino más corto evitando " + evitar);
+            }
+            case 4 -> {
+                // Lista de listas de ciudades (cada lista es un camino posible)
+                Lista todos = copa.todosLosCaminos(origen, destino);
+                if (todos == null || todos.longitud() == 0) {
+                    System.out.println("No hay caminos.");
+                } else {
+                    System.out.println("Todos los caminos posibles:");
+                    for (int i = 1; i <= todos.longitud(); i++) {
+                        Lista camino = (Lista) todos.recuperar(i);
+                        mostrarCamino(camino, "Camino " + i);
+                    }
+                    // Lista de listas de ciudades filtrada por alojamiento (c/lista contiene
+                    // ciudades con alojamiento disponible)
+                    Lista filtrados = copa.filtrarCaminosConAlojamiento(todos);
+                    System.out.println("\nCaminos con alojamiento disponible:");
+                    if (filtrados.longitud() == 0) {
+                        System.out.println("Ninguno.");
+                    } else {
+                        for (int i = 1; i <= filtrados.longitud(); i++) {
+                            Lista caminoAlojamiento = (Lista) filtrados.recuperar(i);
+                            mostrarCamino(caminoAlojamiento, "Camino " + i);
+                        }
+                    }
+                }
+            }
+            case 0 -> {
+            }
+            default -> System.out.println("Opción inválida");
+        }
+    }
+
+    private void mostrarCamino(Lista camino, String titulo) {
+        if (camino == null || camino.longitud() == 0) {
+            System.out.println(titulo + ": No hay camino.");
+
+        } else {
+            System.out.print(titulo + ": ");
+            for (int i = 1; i <= camino.longitud(); i++) {
+                Ciudad cam = (Ciudad) camino.recuperar(i);
+                System.out.print(cam.getNombre());
+                if (i < camino.longitud()) System.out.print(" -> ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Lista ordenada por goles
+    private void listarEquiposPorGoles() {
+        Lista lista = copa.listarEquiposPorGoles();
+        if (lista.longitud() == 0) {
+            System.out.println("No hay equipos cargados.");
+        } else {
+            System.out.println("Equipos ordenados por goles a favor (mayor a menor):");
+            for (int i = 1; i <= lista.longitud(); i++) {
+                Equipo e = (Equipo) lista.recuperar(i);
+                System.out.println(e.getNombre() + " - Goles a favor: " + e.getGolesAFavor());
+            }
+        }
+    }
+
+    // Mostrar sistema
+    private void mostrarSistema() {
+        System.out.println(copa.mostrarEstructuras());
+    }
+
+    // Carga desde archivo (pendiente de implementación)
+    private void cargarDatosIniciales() {
+        System.out.print("Ingrese la ruta del archivo de carga: ");
+        String ruta = sc.nextLine();
+        if (copa.cargarDesdeArchivo(ruta)) {
+            System.out.println("Datos cargados correctamente.");
+        } else {
+            System.out.println("Error al cargar los datos. Revise el formato del archivo.");
+        }
+    }
+
+    // Métodos auxiliares de lectura
+    private int leerEntero(String mensaje) {
+        int num;
+        while (true) {
+            System.out.print(mensaje);
+            try {
+                num = Integer.parseInt(sc.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Debe ingresar un número entero.");
+            }
+        }
+        return num;
+    }
+
+    private boolean leerBoolean() {
+        boolean resultado = false;
+        boolean valido = false;
+        while (!valido) {
+            String entrada = sc.nextLine().trim().toLowerCase();
+            if (entrada.equals("true")) {
+                resultado = true;
+                valido = true;
+            } else if (entrada.equals("false")) {
+                resultado = false;
+                valido = true;
+            } else {
+                System.out.print("Debe ingresar true o false: ");
+            }
+        }
+        return resultado;
+    }
+
+    public static void main(String[] args) {
+        Menu menu = new Menu();
+        menu.iniciar();
+    }
+}

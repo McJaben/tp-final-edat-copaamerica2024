@@ -121,6 +121,18 @@ public class CopaAmerica {
         return exito;
     }
 
+    /**
+     * Elimina la ruta aérea entre dos ciudades.
+     * @param origen nombre de la ciudad de origen
+     * @param destino nombre de la ciudad de destino
+     * @return true si se eliminó, false en caso contrario
+     */
+    public boolean eliminarRuta(String origen, String destino) {
+        Ciudad c1 = new Ciudad(origen, false, false);
+        Ciudad c2 = new Ciudad(destino, false, false);
+        return mapaCiudades.eliminarArco(c1,c2);
+    }
+
     // * ========================= EQUIPOS =========================
     
     // ABM de equipos (punto 2 del TPO)
@@ -510,4 +522,7 @@ public class CopaAmerica {
 
     // TODO: Implementar método para cargar datos desde un archivo de texto
     // Probablemente cree una clase Menu
+    public boolean cargarDesdeArchivo(String nombreArchivo) {
+        return true;
+    }
 }
