@@ -58,17 +58,34 @@ public class CopaAmerica {
      */
     public boolean agregarCiudad(String nombre, boolean alojamiento, boolean esSede) {
         Ciudad ciudad = new Ciudad(nombre, alojamiento, esSede);
-        return mapaCiudades.insertarVertice(ciudad);
+        boolean exito = mapaCiudades.insertarVertice(ciudad);
+        if (exito) {
+            logger.registrar("Alta de ciudad: " + nombre + " (Alojamiento: " + alojamiento
+                    + ", Sede: " + esSede + ")");
+        } else {
+            logger.registrar("ALTA FALLIDA - Ciudad ya existente: " + nombre);
+        }
+
+        return exito;
     }
 
     /**
      * Baja de una ciudad en el sistema
+     * 
      * @param nombre de la ciudad (único, case-insensitive)
      * @return true si se eliminó correctamente, false en caso contrario (ej. si no existe)
      */
     public boolean eliminarCiudad(String nombre) {
         Ciudad buscada = new Ciudad(nombre, false, false);
-        return mapaCiudades.eliminarVertice(buscada); // elimina vértice y todas sus rutas
+        boolean exito = mapaCiudades.eliminarVertice(buscada);
+
+        if (exito) {
+            logger.registrar("Baja de ciudad: " + nombre);
+        } else {
+            logger.registrar("BAJA FALLIDA - Ciudad no encontrada: " + nombre);
+        }
+
+        return exito;
     }
 
     /**
@@ -86,14 +103,22 @@ public class CopaAmerica {
         Ciudad ciudad = this.obtenerCiudad(nombre);
         boolean sePuedeModificar = (ciudad != null && (nuevoAlojamiento != null || nuevaSede != null));
         if (sePuedeModificar) {
+            StringBuilder cambios = new StringBuilder();
+
             if (nuevoAlojamiento != null) {
+                cambios.append(" Alojamiento: " + ciudad.getTieneAlojamiento() + "->" + nuevoAlojamiento);
                 ciudad.setTieneAlojamiento(nuevoAlojamiento);
             }
             if (nuevaSede != null) {
+                cambios.append(" Sede: " + ciudad.getEsSede() + "->" + nuevaSede);
                 ciudad.setEsSede(nuevaSede);
             }
             exito = true;
+            logger.registrar("Modificación de ciudad " + nombre + " -" + cambios.toString());
+        } else if (ciudad == null) {
+            logger.registrar("MODIFICACIÓN FALLIDA - Ciudad no encontrada: " + nombre);
         }
+
         return exito;
     }
 
@@ -112,6 +137,7 @@ public class CopaAmerica {
 
     /**
      * Agrega una ruta aérea entre dos ciudades con el tiempo de vuelo en minutos.
+     * 
      * @param origen nombre de la ciudad de origen
      * @param destino nombre de la ciudad de destino
      * @param tiempo tiempo de vuelo en minutos (debe ser >= 0)
@@ -123,12 +149,20 @@ public class CopaAmerica {
             Ciudad c1 = new Ciudad(origen, false, false);
             Ciudad c2 = new Ciudad(destino, false, false);
             exito = mapaCiudades.insertarArco(c1, c2, tiempo);
+            if (exito) {
+                logger.registrar(
+                        "Alta de ruta: " + origen + " <-> " + destino + " (" + tiempo + " min)");
+            } else {
+                logger.registrar("ALTA DE RUTA FALLIDA - " + origen + " <-> " + destino
+                        + " (ciudades inexistentes o ruta duplicada)");
+            }
         }
         return exito;
     }
 
     /**
      * Elimina la ruta aérea entre dos ciudades.
+     * 
      * @param origen nombre de la ciudad de origen
      * @param destino nombre de la ciudad de destino
      * @return true si se eliminó, false en caso contrario
@@ -136,7 +170,14 @@ public class CopaAmerica {
     public boolean eliminarRuta(String origen, String destino) {
         Ciudad c1 = new Ciudad(origen, false, false);
         Ciudad c2 = new Ciudad(destino, false, false);
-        return mapaCiudades.eliminarArco(c1,c2);
+        boolean exito = mapaCiudades.eliminarArco(c1, c2);
+        if (exito) {
+            logger.registrar("Baja de ruta: " + origen + " <-> " + destino);
+        } else {
+            logger.registrar("BAJA DE RUTA FALLIDA - " + origen + " <-> " + destino
+                    + " (ruta inexistente o ciudades inválidas)");
+        }
+        return exito;
     }
 
     // * ========================= EQUIPOS =========================
@@ -145,6 +186,7 @@ public class CopaAmerica {
 
     /**
      * Alta de un equipo en el sistema.
+     * 
      * @param nombre Clave única del equipo (país).
      * @param dt Director Técnico del equipo.
      * @param grupo grupo asignado (A, B, C o D)
@@ -152,17 +194,35 @@ public class CopaAmerica {
      */
     public boolean agregarEquipo(String nombre, String dt, char grupo) {
         Equipo nuevo = new Equipo(nombre, dt, grupo);
-        return equipos.insertar(nuevo);
+        boolean exito = equipos.insertar(nuevo);
+
+        if (exito) {
+            logger.registrar(
+                    "Alta de equipo: " + nombre + " (DT: " + dt + ", Grupo: " + grupo + ")");
+        } else {
+            logger.registrar("ALTA FALLIDA - Equipo ya existente: " + nombre);
+        }
+
+        return exito;
     }
 
     /**
      * Baja de un equipo en el sistema.
+     * 
      * @param nombre del país del equipo (único, case-insensitive)
      * @return true si se eliminó correctamente, false en caso contrario (ej. si no existe)
      */
     public boolean eliminarEquipo(String nombre) {
         Equipo buscado = new Equipo(nombre, "", 'X');
-        return equipos.eliminar(buscado);
+        boolean exito = equipos.eliminar(buscado);
+
+        if (exito) {
+            logger.registrar("Baja de equipo: " + nombre);
+        } else {
+            logger.registrar("BAJA FALLIDA - Equipo no encontrado: " + nombre);
+        }
+
+        return exito;
     }
 
     /**
@@ -180,13 +240,19 @@ public class CopaAmerica {
         Equipo equipo = obtenerEquipo(nombre);
         boolean sePuedeModificar = (equipo != null && (nuevoDT != null || nuevoGrupo != null));
         if (sePuedeModificar) {
+            StringBuilder cambios = new StringBuilder();
             if (nuevoDT != null) {
+                cambios.append(" DT: " + equipo.getDirectorTecnico() + "->" + nuevoDT);
                 equipo.setDirectorTecnico(nuevoDT);
             }
             if (nuevoGrupo != null) {
+                cambios.append(" Grupo: " + equipo.getGrupo() + "->" + nuevoGrupo);
                 equipo.setGrupo(nuevoGrupo);
             }
             exito = true;
+            logger.registrar("Modificación de equipo " + nombre + " -" + cambios.toString());
+        } else if (equipo == null) {
+            logger.registrar("MODIFICACIÓN FALLIDA - Equipo no encontrado: " + nombre);
         }
         return exito;
     }
@@ -260,6 +326,7 @@ public class CopaAmerica {
         Equipo eq1 = obtenerEquipo(nombreEq1);
         Equipo eq2 = obtenerEquipo(nombreEq2);
         Ciudad ciudad = obtenerCiudad(nombreCiudad);
+
         if (eq1 != null && eq2 != null && ciudad != null) {
             ClavePartido clave = new ClavePartido(eq1, eq2);
             DatosPartido datos = new DatosPartido(ronda, ciudad, estadio, goles1, goles2);
@@ -274,6 +341,20 @@ public class CopaAmerica {
 
             this.actualizarEstadisticas(eq1, eq2, goles1, goles2);
             exito = true;
+            logger.registrar("Alta de partido: " + nombreEq1 + " " + goles1 + " - " + goles2 + " "
+                    + nombreEq2 + " (" + ronda + ", " + nombreCiudad + ", " + estadio + ")");
+        } else {
+            StringBuilder error = new StringBuilder("ALTA DE PARTIDO FALLIDA - ");
+            if (eq1 == null) {
+                error.append("Equipo1 no existe (" + nombreEq1 + "); ");
+            }
+            if (eq2 == null) {
+                error.append("Equipo2 no existe (" + nombreEq2 + "); ");
+            }
+            if (ciudad == null) {
+                error.append("Ciudad no existe (" + nombreCiudad + "); ");
+            }
+            logger.registrar(error.toString());
         }
 
         return exito;
@@ -330,6 +411,7 @@ public class CopaAmerica {
 
     // Devuelve lista de Ciudad que forma el camino mínimo entre origen y destino
     public Lista caminoMinimoCiudades(String origen, String destino) {
+        logger.registrar("Consulta: Camino mínimo (escalas) de " + origen + " a " + destino);
         Lista lis = null;
         Ciudad c1 = obtenerCiudad(origen);
         Ciudad c2 = obtenerCiudad(destino);
@@ -341,6 +423,7 @@ public class CopaAmerica {
 
     // Devuelve lista de Ciudad que forma el camino de menor tiempo entre origen y destino
     public Lista caminoMenorTiempo(String origen, String destino) {
+        logger.registrar("Consulta: Camino de menor tiempo de " + origen + " a " + destino);
         Lista lis = null;
         Ciudad c1 = obtenerCiudad(origen);
         Ciudad c2 = obtenerCiudad(destino);
@@ -360,6 +443,8 @@ public class CopaAmerica {
      * @return Lista de ciudades que forman el camino solicitado, null si no existe tal camino
      */
     public Lista caminoMenorTiempoEvitando(String origen, String destino, String evitar) {
+        logger.registrar("Consulta: Camino de menor tiempo de " + origen + " a " + destino + 
+                " (evitando " + evitar + ")");
         Lista lis = null;
         Ciudad c1 = obtenerCiudad(origen);
         Ciudad c2 = obtenerCiudad(destino);
@@ -378,6 +463,7 @@ public class CopaAmerica {
      * @return
      */
     public Lista todosLosCaminos(String origen, String destino) {
+        logger.registrar("Consulta: Todos los caminos de " + origen + " a " + destino);
         Lista lis = null;
         Ciudad c1 = obtenerCiudad(origen);
         Ciudad c2 = obtenerCiudad(destino);
@@ -395,6 +481,7 @@ public class CopaAmerica {
      * @return Lista o null si la lista de caminos es null
      */
     public Lista filtrarCaminosConAlojamiento(Lista caminos) {
+        logger.registrar("Consulta: Filtrar caminos con alojamiento");
         Lista resultado = null;
         if (caminos != null) {
             resultado = new Lista();
@@ -440,6 +527,7 @@ public class CopaAmerica {
      * @return Lista de objetos Equipo ordenada descendentemente por goles.
      */
     public Lista listarEquiposPorGoles() {
+        logger.registrar("Consulta: Listar equipos ordenados por goles a favor");
         // Obtener todos los equipos del AVL (Inorden: O(n))
         Lista listaOriginal = this.equipos.listar();
         Lista listaOrdenada = new Lista();
@@ -538,10 +626,13 @@ public class CopaAmerica {
     // * ==================== CARGA DESDE ARCHIVO ====================
 
     public boolean cargarDesdeArchivo(String rutaArchivo) {
+        logger.registrar("INICIO DE CARGA DESDE ARCHIVO: " + rutaArchivo);
         CargadorArchivo cargador = new CargadorArchivo(this, this.logger);
         boolean exito = cargador.cargar(rutaArchivo);
         if (exito) {
             logger.registrarEstado("ESTADO TRAS CARGA INICIAL", this.mostrarEstructuras());
+        } else {
+            logger.registrar("ERROR EN CARGA DESDE ARCHIVO: " + rutaArchivo);
         }
         return exito;
     }

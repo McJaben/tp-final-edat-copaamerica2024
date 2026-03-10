@@ -78,8 +78,8 @@ tp-final-edat-copaamerica2024/
 │   |   └── Menu.java          ← punto de entrada (main)
 │   |
 |   └── logs/
-        ├── sistema.log        ← generado en ejecución (estado inicial, operaciones, estado final)
-        └── caminos.log        ← generado al mostrar todos los caminos en opción 4 de consulta de viajes
+|       ├── sistema.log        ← generado en ejecución (estado inicial, operaciones, estado final)
+|       └── caminos.log        ← generado al mostrar todos los caminos en opción 4 de consulta de viajes
 ├── cargaInicial.txt           ← dataset con 16 equipos, 32 partidos, 20 ciudades, 40 rutas
 └── README.md
 ```
