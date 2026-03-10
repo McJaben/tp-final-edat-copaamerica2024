@@ -87,7 +87,6 @@ public class Ciudad implements Comparable<Ciudad> {
      */
     @Override
     public String toString() {
-        // TODO: Verificar si se admite el uso de StringBuilder o si debo usar concatenación simple
         StringBuilder sb = new StringBuilder();
 
         sb.append("Ciudad: ");

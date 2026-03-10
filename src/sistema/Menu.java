@@ -18,24 +18,29 @@ public class Menu {
     }
 
     public void iniciar() {
+        this.copa.getLogger().iniciarSesion(); // encabezado de sesión
         int opcion;
         do {
-            mostrarMenuPrincipal();
+            this.mostrarMenuPrincipal();
             opcion = leerEntero("Ingrese opción: ");
             switch (opcion) {
-                case 1 -> menuCiudades();
-                case 2 -> menuEquipos();
-                case 3 -> altaPartido();
-                case 4 -> consultasEquipos();
-                case 5 -> consultasPartidos();
-                case 6 -> consultasViajes();
-                case 7 -> listarEquiposPorGoles();
-                case 8 -> mostrarSistema();
-                case 9 -> cargarDatosIniciales();
+                case 1 -> this.menuCiudades();
+                case 2 -> this.menuEquipos();
+                case 3 -> this.altaPartido();
+                case 4 -> this.consultasEquipos();
+                case 5 -> this.consultasPartidos();
+                case 6 -> this.consultasViajes();
+                case 7 -> this.listarEquiposPorGoles();
+                case 8 -> this.mostrarSistema();
+                case 9 -> this.cargarDatosIniciales();
                 case 0 -> System.out.println("Saliendo...");
                 default -> System.out.println("Opción inválida");
             }
         } while (opcion != 0);
+        // Al salir del menú, registramos el estado final del sistema y cerramos el logger
+        this.copa.getLogger().registrarEstado("ESTADO FINAL DEL SISTEMA", copa.mostrarEstructuras());
+        this.copa.getLogger().cerrarSesion();
+        this.copa.getLogger().cerrar();
         sc.close();
     }
 
@@ -369,7 +374,7 @@ public class Menu {
         System.out.println(copa.mostrarEstructuras());
     }
 
-    // Carga desde archivo (pendiente de implementación)
+    // Carga desde archivo
     private void cargarDatosIniciales() {
         System.out.print("Ingrese la ruta del archivo de carga: ");
         String ruta = sc.nextLine();

@@ -20,12 +20,18 @@ public class CopaAmerica {
     private ArbolAVL<Equipo> equipos;
     private Grafo<Ciudad, Integer> mapaCiudades; // Integer es el tiempo de vuelo en minutos
     private HashMap<ClavePartido, Lista> partidos; // la lista es de DatosPartido
+    private Logger logger = new Logger("sistema.log"); // Logger para registrar operaciones y errores
 
     public CopaAmerica() {
         // Inicializamos las estructuras
         this.equipos = new ArbolAVL<>();
         this.mapaCiudades = new Grafo<>();
         this.partidos = new HashMap<>();
+    }
+
+    // Getter para el logger, así el menu y otras clases pueden usar el mismo
+    public Logger getLogger() {
+        return logger;
     }
 
     // * ========================= CIUDADES =========================
@@ -510,7 +516,6 @@ public class CopaAmerica {
     // * ==================== MOSTRAR SISTEMA ====================
 
     public String mostrarEstructuras() {
-        // TODO: Verificar si se admite el uso de StringBuilder o si debo usar concatenación simple
         StringBuilder sb = new StringBuilder();
         sb.append("===== EQUIPOS (AVL) =====\n");
         sb.append(equipos.toString()); // asume que el AVL tiene toString en orden
@@ -531,9 +536,12 @@ public class CopaAmerica {
 
     // * ==================== CARGA DESDE ARCHIVO ====================
 
-    // TODO: Implementar método para cargar datos desde un archivo de texto
-    // Probablemente cree una clase Menu
-    public boolean cargarDesdeArchivo(String nombreArchivo) {
-        return true;
+    public boolean cargarDesdeArchivo(String rutaArchivo) {
+        CargadorArchivo cargador = new CargadorArchivo(this, this.logger);
+        boolean exito = cargador.cargar(rutaArchivo);
+        if (exito) {
+            logger.registrarEstado("ESTADO TRAS CARGA INICIAL", this.mostrarEstructuras());
+        }
+        return exito;
     }
 }

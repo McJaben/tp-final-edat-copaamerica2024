@@ -558,7 +558,6 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     @Override
     public String toString() {
-        // TODO: Verificar si se admite el uso de StringBuilder o si debo usar concatenación simple
         StringBuilder sb = new StringBuilder();
         if (this.inicio == null) {
             sb.append("Grafo vacío\n");
