@@ -27,9 +27,9 @@ public class Menu {
                 case 1 -> this.menuCiudades();
                 case 2 -> this.menuEquipos();
                 case 3 -> this.altaPartido();
-                case 4 -> this.consultasEquipos();
-                case 5 -> this.consultasPartidos();
-                case 6 -> this.consultasViajes();
+                case 4 -> this.consultasEquipos();    // Ahora tienen un bucle interno para voler al menú de consulta
+                case 5 -> this.consultasPartidos();   // Ahora tienen un bucle interno para voler al menú de consulta
+                case 6 -> this.consultasViajes();     // Ahora tienen un bucle interno para voler al menú de consulta
                 case 7 -> this.listarEquiposPorGoles();
                 case 8 -> this.mostrarSistema();
                 case 9 -> this.cargarDatosIniciales();
@@ -60,23 +60,27 @@ public class Menu {
 
     // Submenú de Ciudades
     private void menuCiudades() {
-        System.out.println("\n--- ABM Ciudades ---");
-        System.out.println("1. Agregar ciudad");
-        System.out.println("2. Modificar ciudad");
-        System.out.println("3. Eliminar ciudad");
-        System.out.println("4. Agregar ruta");
-        System.out.println("5. Eliminar ruta");
-        System.out.println("0. Volver");
-        int op = leerEntero("Seleccione: ");
-        switch (op) {
-            case 1 -> agregarCiudad();
-            case 2 -> modificarCiudad();
-            case 3 -> eliminarCiudad();
-            case 4 -> agregarRuta();
-            case 5 -> eliminarRuta();
-            case 0 -> {}
-            default -> System.out.println("Opción inválida");
-        }
+        int op;
+        do {
+            System.out.println("\n--- ABM Ciudades ---");
+            System.out.println("1. Agregar ciudad");
+            System.out.println("2. Modificar ciudad");
+            System.out.println("3. Eliminar ciudad");
+            System.out.println("4. Agregar ruta");
+            System.out.println("5. Eliminar ruta");
+            System.out.println("0. Volver al menú principal");
+            op = leerEntero("Seleccione: ");
+            
+            switch (op) {
+                case 1 -> agregarCiudad();
+                case 2 -> modificarCiudad();
+                case 3 -> eliminarCiudad();
+                case 4 -> agregarRuta();
+                case 5 -> eliminarRuta();
+                case 0 -> System.out.println("Volviendo al menú principal...");
+                default -> System.out.println("Opción inválida");
+            }
+        } while (op != 0);
     }
 
     private void agregarCiudad() {
@@ -167,19 +171,23 @@ public class Menu {
 
     // Submenú de Equipos
     private void menuEquipos() {
-        System.out.println("\n--- ABM Equipos ---");
-        System.out.println("1. Agregar equipo");
-        System.out.println("2. Modificar equipo");
-        System.out.println("3. Eliminar equipo");
-        System.out.println("0. Volver");
-        int op = leerEntero("Seleccione: ");
-        switch (op) {
-            case 1 -> agregarEquipo();
-            case 2 -> modificarEquipo();
-            case 3 -> eliminarEquipo();
-            case 0 -> {}
-            default -> System.out.println("Opción inválida");
-        }
+        int op;
+        do {
+            System.out.println("\n--- ABM Equipos ---");
+            System.out.println("1. Agregar equipo");
+            System.out.println("2. Modificar equipo");
+            System.out.println("3. Eliminar equipo");
+            System.out.println("0. Volver al menú principal");
+            op = leerEntero("Seleccione: ");
+            
+            switch (op) {
+                case 1 -> agregarEquipo();
+                case 2 -> modificarEquipo();
+                case 3 -> eliminarEquipo();
+                case 0 -> System.out.println("Volviendo al menú principal...");
+                default -> System.out.println("Opción inválida");
+            }
+        } while (op != 0);
     }
 
     private void agregarEquipo() {
@@ -261,124 +269,164 @@ public class Menu {
 
     // Consultas de equipos
     private void consultasEquipos() {
-        System.out.println("\n--- Consultas de equipos ---");
-        System.out.println("1. Mostrar información de un equipo");
-        System.out.println("2. Listar equipos en rango alfabético");
-        System.out.println("0. Volver");
-        int op = leerEntero("Seleccione: ");
-        switch (op) {
-            case 1 -> {
-                System.out.print("Nombre del país: ");
-                String nombre = sc.nextLine().trim().toUpperCase();
-                System.out.println(copa.mostrarInfoEquipo(nombre));
+        int op;
+        do {
+            System.out.println("\n--- Consultas de equipos ---");
+            System.out.println("1. Mostrar información de un equipo");
+            System.out.println("2. Listar equipos en rango alfabético");
+            System.out.println("0. Volver al menú principal");
+            op = leerEntero("Seleccione: ");
+            
+            switch (op) {
+                case 1 -> {
+                    System.out.print("Nombre del país: ");
+                    String nombre = sc.nextLine().trim().toUpperCase();
+                    System.out.println(copa.mostrarInfoEquipo(nombre));
+                }
+                case 2 -> {
+                    System.out.print("Límite inferior (min): ");
+                    String min = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Límite superior (max): ");
+                    String max = sc.nextLine().trim().toUpperCase();
+                    Lista lista = copa.equiposEnRango(min, max);
+                    if (lista == null || lista.longitud() == 0)
+                        System.out.println("No hay equipos en ese rango.");
+                    else {
+                        System.out.println("Equipos en el rango [" + min + ", " + max + "]:");
+                        for (int i = 1; i <= lista.longitud(); i++)
+                            System.out.println("  " + lista.recuperar(i));
+                    }
+                }
+                case 0 -> System.out.println("Volviendo al menú principal...");
+                default -> System.out.println("Opción inválida");
             }
-            case 2 -> {
-                System.out.print("Límite inferior (min): ");
-                String min = sc.nextLine().trim().toUpperCase();
-                System.out.print("Límite superior (max): ");
-                String max = sc.nextLine().trim().toUpperCase();
-                Lista lista = copa.equiposEnRango(min, max);
-                if (lista == null || lista.longitud() == 0)
-                    System.out.println("No hay equipos en ese rango.");
-                else
-                    for (int i = 1; i <= lista.longitud(); i++)
-                        System.out.println(lista.recuperar(i));
-            }
-            case 0 -> {}
-            default -> System.out.println("Opción inválida");
-        }
+        } while (op != 0);
     }
 
-    // Consultas de partidos (versión mejorada con nombres de equipos en el resultado)
+    // Consultas de partidos - AHORA CON BUCLE INTERNO (Y CORREGIDO)
     private void consultasPartidos() {
-        System.out.println("\n--- Consultas de partidos ---");
-        System.out.print("Ingrese equipo 1: ");
-        String eq1 = sc.nextLine().trim().toUpperCase();
-        System.out.print("Ingrese equipo 2: ");
-        String eq2 = sc.nextLine().trim().toUpperCase();
-        Equipo e1 = copa.obtenerEquipo(eq1);
-        Equipo e2 = copa.obtenerEquipo(eq2);
-        Lista partidos = null;
+        int op;
+        do {
+            System.out.println("\n--- Consultas de partidos ---");
+            System.out.println("1. Buscar partidos entre dos equipos");
+            System.out.println("0. Volver al menú principal");
+            op = leerEntero("Seleccione: ");
 
-        if (e1 != null && e2 != null) {
-            if (e1.compareTo(e2) > 0) {
-                Equipo aux = e1;
-                e1 = e2;
-                e2 = aux;
-            }
-            partidos = copa.obtenerPartidosEntre(e1.getNombre(), e2.getNombre());
+            switch (op) {
+                case 1 -> {
+                    System.out.print("Ingrese equipo 1: ");
+                    String eq1 = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Ingrese equipo 2: ");
+                    String eq2 = sc.nextLine().trim().toUpperCase();
 
-            if (partidos != null && partidos.longitud() > 0) {
-                System.out.println("\nPartidos entre " + e1.getNombre() + " y " + e2.getNombre() + ":");
-                for (int i = 1; i <= partidos.longitud(); i++) {
-                    DatosPartido dp = (DatosPartido) partidos.recuperar(i);
-                    System.out.println(dp.toString(e1, e2));    
+                    Equipo e1 = copa.obtenerEquipo(eq1);
+                    Equipo e2 = copa.obtenerEquipo(eq2);
+
+                    if (e1 != null && e2 != null) {
+                        if (e1.compareTo(e2) > 0) {
+                            Equipo aux = e1;
+                            e1 = e2;
+                            e2 = aux;
+                        }
+                        Lista partidos = copa.obtenerPartidosEntre(e1.getNombre(), e2.getNombre());
+
+                        if (partidos != null && partidos.longitud() > 0) {
+                            System.out.println("\nPartidos entre " + e1.getNombre() + " y "
+                                    + e2.getNombre() + ":");
+                            for (int i = 1; i <= partidos.longitud(); i++) {
+                                DatosPartido dp = (DatosPartido) partidos.recuperar(i);
+                                System.out.println(dp.toString(e1, e2));
+                            }
+                        } else {
+                            System.out.println("No se encontraron partidos entre esos equipos.");
+                        }
+                    } else {
+                        System.out.println("Uno o ambos equipos no existen.");
+                    }
                 }
-            } else {
-                System.out.println("No se encontraron partidos entre esos equipos.");
+                case 0 -> System.out.println("Volviendo al menú principal...");
+                default -> System.out.println("Opción inválida");
             }
-        } else {
-            System.out.println("Uno o ambos equipos no existen.");
-        }
+        } while (op != 0);
     }
 
     // Consultas de viajes
     private void consultasViajes() {
-        System.out.println("\n--- Consultas de viajes ---");
-        System.out.print("Ciudad origen: ");
-        String origen = sc.nextLine().trim().toUpperCase();
-        System.out.print("Ciudad destino: ");
-        String destino = sc.nextLine().trim().toUpperCase();
-        System.out.println("1. Camino con mínima cantidad de ciudades");
-        System.out.println("2. Camino de menor tiempo");
-        System.out.println("3. Camino más corto evitando una ciudad");
-        System.out.println("4. Todos los caminos y filtrar por alojamiento");
-        System.out.println("0. Volver");
-        int op = leerEntero("Seleccione: ");
-        switch (op) {
-            case 1 -> mostrarCamino(copa.caminoMinimoCiudades(origen, destino),
-                    "Camino con menos ciudades");
-            case 2 -> mostrarCamino(copa.caminoMenorTiempo(origen, destino),
-                    "Camino de menor tiempo");
-            case 3 -> {
-                System.out.print("Ciudad a evitar: ");
-                String evitar = sc.nextLine().trim().toUpperCase();
-                if (evitar.equalsIgnoreCase(origen) || evitar.equalsIgnoreCase(destino)) {
-                    System.out.println("La ciudad a evitar no puede ser el origen ni el destino.");
-                } else {
-                    mostrarCamino(copa.caminoMenorTiempoEvitando(origen, destino, evitar),
-                            "Camino más corto evitando " + evitar);
+        int op;
+        do {
+            System.out.println("\n--- Consultas de viajes ---");
+            System.out.println("1. Camino con mínima cantidad de ciudades");
+            System.out.println("2. Camino de menor tiempo");
+            System.out.println("3. Camino más corto evitando una ciudad");
+            System.out.println("4. Todos los caminos y filtrar por alojamiento");
+            System.out.println("0. Volver al menú principal");
+            op = leerEntero("Seleccione: ");
+            
+            switch (op) {
+                case 1 -> {
+                    System.out.print("Ciudad origen: ");
+                    String origen = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Ciudad destino: ");
+                    String destino = sc.nextLine().trim().toUpperCase();
+                    mostrarCamino(copa.caminoMinimoCiudades(origen, destino),
+                            "Camino con menos ciudades");
                 }
-            }
-            case 4 -> {
-                // Lista de listas de ciudades (cada lista es un camino posible)
-                Lista todos = copa.todosLosCaminos(origen, destino);
-                if (todos == null || todos.longitud() == 0) {
-                    System.out.println("No hay caminos.");
-                } else {
-                    System.out.println("Todos los caminos posibles:");
-                    for (int i = 1; i <= todos.longitud(); i++) {
-                        Lista camino = (Lista) todos.recuperar(i);
-                        mostrarCamino(camino, "Camino " + i);
-                    }
-                    // Lista de listas de ciudades filtrada por alojamiento (c/lista contiene
-                    // ciudades con alojamiento disponible)
-                    Lista filtrados = copa.filtrarCaminosConAlojamiento(todos);
-                    System.out.println("\nCaminos con alojamiento disponible:");
-                    if (filtrados.longitud() == 0) {
-                        System.out.println("Ninguno.");
+                case 2 -> {
+                    System.out.print("Ciudad origen: ");
+                    String origen = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Ciudad destino: ");
+                    String destino = sc.nextLine().trim().toUpperCase();
+                    mostrarCamino(copa.caminoMenorTiempo(origen, destino),
+                            "Camino de menor tiempo");
+                }
+                case 3 -> {
+                    System.out.print("Ciudad origen: ");
+                    String origen = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Ciudad destino: ");
+                    String destino = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Ciudad a evitar: ");
+                    String evitar = sc.nextLine().trim().toUpperCase();
+                    if (evitar.equalsIgnoreCase(origen) || evitar.equalsIgnoreCase(destino)) {
+                        System.out.println("La ciudad a evitar no puede ser el origen ni el destino.");
                     } else {
-                        for (int i = 1; i <= filtrados.longitud(); i++) {
-                            Lista caminoAlojamiento = (Lista) filtrados.recuperar(i);
-                            mostrarCamino(caminoAlojamiento, "Camino " + i);
+                        mostrarCamino(copa.caminoMenorTiempoEvitando(origen, destino, evitar),
+                                "Camino más corto evitando " + evitar);
+                    }
+                }
+                case 4 -> {
+                    System.out.print("Ciudad origen: ");
+                    String origen = sc.nextLine().trim().toUpperCase();
+                    System.out.print("Ciudad destino: ");
+                    String destino = sc.nextLine().trim().toUpperCase();
+                    
+                    // Lista de listas de ciudades (cada lista es un camino posible)
+                    Lista todos = copa.todosLosCaminos(origen, destino);
+                    if (todos == null || todos.longitud() == 0) {
+                        System.out.println("No hay caminos.");
+                    } else {
+                        System.out.println("Todos los caminos posibles:");
+                        for (int i = 1; i <= todos.longitud(); i++) {
+                            Lista camino = (Lista) todos.recuperar(i);
+                            mostrarCamino(camino, "Camino " + i);
+                        }
+                        
+                        // Lista de listas de ciudades filtrada por alojamiento
+                        Lista filtrados = copa.filtrarCaminosConAlojamiento(todos);
+                        System.out.println("\nCaminos con alojamiento disponible:");
+                        if (filtrados.longitud() == 0) {
+                            System.out.println("Ninguno.");
+                        } else {
+                            for (int i = 1; i <= filtrados.longitud(); i++) {
+                                Lista caminoAlojamiento = (Lista) filtrados.recuperar(i);
+                                mostrarCamino(caminoAlojamiento, "Camino con alojamiento " + i);
+                            }
                         }
                     }
                 }
+                case 0 -> System.out.println("Volviendo al menú principal...");
+                default -> System.out.println("Opción inválida");
             }
-            case 0 -> {
-            }
-            default -> System.out.println("Opción inválida");
-        }
+        } while (op != 0);
     }
 
     // Método privado para mostrar un camino (Lista de ciudades) con un título descriptivo
@@ -405,7 +453,7 @@ public class Menu {
             System.out.println("Equipos ordenados por goles a favor (mayor a menor):");
             for (int i = 1; i <= lista.longitud(); i++) {
                 Equipo e = (Equipo) lista.recuperar(i);
-                System.out.println(e.getNombre() + " - Goles a favor: " + e.getGolesAFavor());
+                System.out.println("  " + e.getNombre() + " - Goles a favor: " + e.getGolesAFavor());
             }
         }
     }
