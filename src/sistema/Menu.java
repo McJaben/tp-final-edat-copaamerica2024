@@ -196,7 +196,7 @@ public class Menu {
         System.out.print("Director técnico: ");
         String dt = sc.nextLine().trim();
         System.out.print("Grupo (A/B/C/D): ");
-        char grupo = sc.nextLine().trim().toUpperCase().charAt(0);
+        char grupo = leerGrupoObligatorio();
         if (copa.agregarEquipo(nombre, dt, grupo)) {
             System.out.println("Equipo agregado.");
             copa.getLogger().registrar(
@@ -212,12 +212,12 @@ public class Menu {
         System.out.print("Nombre del país a modificar: ");
         String nombre = sc.nextLine().trim().toUpperCase();
         System.out.print("Nuevo DT (vacío para no cambiar): ");
-        String dt = sc.nextLine().trim();
+        String dt = sc.nextLine().trim().toUpperCase();
         if (dt.isEmpty())
             dt = null;
         System.out.print("Nuevo grupo (vacío para no cambiar): ");
-        String grupoStr = sc.nextLine().trim();
-        Character grupo = grupoStr.isEmpty() ? null : grupoStr.toUpperCase().charAt(0);
+        Character grupo = leerGrupoOpcional();
+
         if (copa.modificarEquipo(nombre, dt, grupo)) {
             System.out.println("Equipo modificado.");
             copa.getLogger()
@@ -529,6 +529,44 @@ public class Menu {
             }
         }
         return resultado;
+    }
+
+    private char leerGrupoObligatorio() {
+        String grupoStr;
+        char grupoValido = ' ';
+        boolean valido;
+        do {
+            grupoStr = sc.nextLine().trim().toUpperCase();
+            valido = grupoStr.length() == 1 && "ABCD".contains(grupoStr);
+            if (valido) {
+                grupoValido = grupoStr.charAt(0);
+            } else {
+                System.out.print("Grupo inválido. Ingrese A/B/C/D: ");
+            }
+        } while (!valido);
+        return grupoValido;
+    }
+
+    private Character leerGrupoOpcional() {
+        String grupoStr;
+        Character grupoValido = null;
+        boolean valido;
+        do {
+            grupoStr = sc.nextLine().trim();
+            if (grupoStr.isEmpty()) {
+                valido = true;
+                grupoValido = null;
+            } else {
+                grupoStr = grupoStr.toUpperCase();
+                valido = grupoStr.length() == 1 && "ABCD".contains(grupoStr);
+                if (valido) {
+                    grupoValido = grupoStr.charAt(0);
+                } else {
+                    System.out.print("Grupo inválido. Ingrese A/B/C/D (vacío para no cambiar): ");
+                }
+            }
+        } while (!valido);
+        return grupoValido;
     }
 
     public static void main(String[] args) {
