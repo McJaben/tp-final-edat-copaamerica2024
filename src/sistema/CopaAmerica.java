@@ -394,7 +394,7 @@ public class CopaAmerica {
             resultado = new Lista();
             for (int i = 1; i <= caminos.longitud(); i++) {
                 Lista camino = (Lista) caminos.recuperar(i);
-                if (tieneAlojamientoEnCamino(camino)) {
+                if (camino != null && tieneAlojamientoEnCamino(camino)) {
                     resultado.insertar(camino, resultado.longitud() + 1);
                 }
             }
@@ -402,9 +402,20 @@ public class CopaAmerica {
         return resultado;
     }
 
+    /**
+     * Método auxiliar para verificar si un camino tiene al menos una ciudad con alojamiento. Se
+     * omite la ciudad de origen, dado que el punto 6.d del TPO dice: "mostrar sólo los que haya
+     * posibilidad de conseguir alojamiento en la ciudad destino o en alguna ciudad por la que tenga
+     * que pasar".
+     * 
+     * @param camino Lista de ciudades que forman un camino entre origen y destino
+     * @return true si el camino tiene al menos una ciudad con alojamiento, false en caso contrario
+     */
     private boolean tieneAlojamientoEnCamino(Lista camino) {
         boolean tieneAlojamiento = false;
-        for (int i = 1; i <= camino.longitud(); i++) {
+        // empiezo en posición 2 para omitir el origen y corto el ciclo si ya encontré una ciudad
+        // con alojamiento para no recorrer ciudades innecesariamente
+        for (int i = 2; i <= camino.longitud() && !tieneAlojamiento; i++) {
             Ciudad ciudad = (Ciudad) camino.recuperar(i);
             if (ciudad.getTieneAlojamiento()) {
                 tieneAlojamiento = true;

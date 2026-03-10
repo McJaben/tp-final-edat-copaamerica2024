@@ -243,24 +243,36 @@ public class Menu {
         }
     }
 
-    // Consultas de partidos
+    // Consultas de partidos (versión mejorada con nombres de equipos en el resultado)
     private void consultasPartidos() {
         System.out.println("\n--- Consultas de partidos ---");
         System.out.print("Ingrese equipo 1: ");
-        String eq1 = sc.nextLine();
+        String eq1 = sc.nextLine().trim().toUpperCase();
         System.out.print("Ingrese equipo 2: ");
-        String eq2 = sc.nextLine();
-        Lista partidos = copa.obtenerPartidosEntre(eq1, eq2); // Lista de DatosPartido
-        if (partidos == null || partidos.longitud() == 0) {
-            System.out.println("No se encontraron partidos entre esos equipos.");
-        } else {
-            System.out.println("Partidos encontrados:");
-            for (int i = 1; i <= partidos.longitud(); i++) {
-                DatosPartido dp = (DatosPartido) partidos.recuperar(i);
-                System.out.println("Ronda: " + dp.getRonda() + ", Ciudad: "
-                        + dp.getCiudad().getNombre() + ", Estadio: " + dp.getEstadio()
-                        + ", Resultado: " + dp.getGoles1() + " - " + dp.getGoles2());
+        String eq2 = sc.nextLine().trim().toUpperCase();
+        Equipo e1 = copa.obtenerEquipo(eq1);
+        Equipo e2 = copa.obtenerEquipo(eq2);
+        Lista partidos = null;
+
+        if (e1 != null && e2 != null) {
+            if (e1.compareTo(e2) > 0) {
+                Equipo aux = e1;
+                e1 = e2;
+                e2 = aux;
             }
+            partidos = copa.obtenerPartidosEntre(e1.getNombre(), e2.getNombre());
+
+            if (partidos != null && partidos.longitud() > 0) {
+                System.out.println("\nPartidos entre " + e1.getNombre() + " y " + e2.getNombre() + ":");
+                for (int i = 1; i <= partidos.longitud(); i++) {
+                    DatosPartido dp = (DatosPartido) partidos.recuperar(i);
+                    System.out.println(dp.toString(e1, e2));    
+                }
+            } else {
+                System.out.println("No se encontraron partidos entre esos equipos.");
+            }
+        } else {
+            System.out.println("Uno o ambos equipos no existen.");
         }
     }
 
@@ -285,8 +297,12 @@ public class Menu {
             case 3 -> {
                 System.out.print("Ciudad a evitar: ");
                 String evitar = sc.nextLine();
-                mostrarCamino(copa.caminoMenorTiempoEvitando(origen, destino, evitar),
-                        "Camino más corto evitando " + evitar);
+                if (evitar.equalsIgnoreCase(origen) || evitar.equalsIgnoreCase(destino)) {
+                    System.out.println("La ciudad a evitar no puede ser el origen ni el destino.");
+                } else {
+                    mostrarCamino(copa.caminoMenorTiempoEvitando(origen, destino, evitar),
+                            "Camino más corto evitando " + evitar);
+                }
             }
             case 4 -> {
                 // Lista de listas de ciudades (cada lista es un camino posible)
@@ -319,11 +335,9 @@ public class Menu {
         }
     }
 
+    // Método privado para mostrar un camino (Lista de ciudades) con un título descriptivo
     private void mostrarCamino(Lista camino, String titulo) {
-        if (camino == null || camino.longitud() == 0) {
-            System.out.println(titulo + ": No hay camino.");
-
-        } else {
+        if (camino != null && camino.longitud() > 0) {
             System.out.print(titulo + ": ");
             for (int i = 1; i <= camino.longitud(); i++) {
                 Ciudad cam = (Ciudad) camino.recuperar(i);
@@ -331,6 +345,8 @@ public class Menu {
                 if (i < camino.longitud()) System.out.print(" -> ");
             }
             System.out.println();
+        } else {
+            System.out.println(titulo + ": No hay camino.");
         }
     }
 

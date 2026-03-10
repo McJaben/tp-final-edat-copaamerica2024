@@ -60,4 +60,31 @@ public class DatosPartido {
         return "Ronda: " + ronda + " | Ciudad: " + ciudad.getNombre() + " | Estadio: " + estadio
                 + " | Resultado: " + goles1 + "-" + goles2;
     }
+
+    /**
+     * Método toString() específico para mostrar el resultado entre dos equipos, usando también sus
+     * nombres
+     * 
+     * @param eq1 primer equipo del partido
+     * @param eq2 segundo equipo del partido
+     * @return String con la información completa del partido, con nombre de equipos y resultado
+     */
+    public String toString(Equipo eq1, Equipo eq2) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ronda: ");
+        sb.append(ronda);
+        sb.append(" | Ciudad: ");
+        sb.append(ciudad.getNombre());
+        sb.append(" | Estadio: ");
+        sb.append(estadio);
+        sb.append(" | Resultado: ");
+        sb.append(eq1.getNombre());
+        sb.append(" ");
+        sb.append(goles1);
+        sb.append(" - ");
+        sb.append(goles2);
+        sb.append(" ");
+        sb.append(eq2.getNombre());
+        return sb.toString();
+    }
 }
