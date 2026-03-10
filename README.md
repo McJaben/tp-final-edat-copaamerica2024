@@ -131,7 +131,13 @@ SESIÓN INICIADA: 2024-07-15 14:32:01
 
 ## Diagramas
 
-> _Próximamente: diagrama del Grafo de ciudades y diagrama del AVL de equipos generados con la carga inicial._
+### Diagrama del grafo de ciudades después de la carga inicial
+<img width="1142" height="796" alt="grafo_mapa_ciudades" src="https://github.com/user-attachments/assets/d86333a5-2fb3-4e10-aee9-a828fc189535" />
+
+
+### Diagrama del árbol AVL de equipos generado con la carga inicial
+<img width="664" height="478" alt="avl_equipos" src="https://github.com/user-attachments/assets/7045d3f0-2240-411c-96d7-8a723694da2c" />
+
 
 ---
 
