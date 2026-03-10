@@ -420,9 +420,29 @@ public class Menu {
                                 Lista caminoAlojamiento = (Lista) filtrados.recuperar(i);
                                 mostrarCamino(caminoAlojamiento, "Camino con alojamiento " + i);
                             }
+                            System.out.println("Total de caminos encontrados: " + todos.longitud());
+                            System.out.println("Total de caminos con alojamiento: " + filtrados.longitud());
                         }
                     }
                 }
+                // case 98 -> { // otro test
+                //     System.out.println("=== ESTADO DE CIUDADES ===");
+                //     String[] ciudadesTest = {"ATLANTA", "ORLANDO", "DENVER", "MIAMI", "DALLAS"};
+                //     for (String nom : ciudadesTest) {
+                //         Ciudad c = copa.obtenerCiudad(nom);
+                //         System.out.println(nom + ": alojamiento=" + c.getTieneAlojamiento()
+                //                 + ", sede=" + c.getEsSede());
+                //     }
+                // }
+                // // ! Temporal, para test
+                // case 99 -> { // opción de debug
+                //     Ciudad miami = copa.obtenerCiudad("MIAMI");
+                //     System.out.println("MIAMI tiene alojamiento? " + miami.getTieneAlojamiento());
+                //     // Cambio a false y verifico
+                //     miami.setTieneAlojamiento(false);
+                //     System.out.println(
+                //             "Ahora MIAMI tiene alojamiento? " + miami.getTieneAlojamiento());
+                // }
                 case 0 -> System.out.println("Volviendo al menú principal...");
                 default -> System.out.println("Opción inválida");
             }
