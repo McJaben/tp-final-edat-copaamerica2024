@@ -501,11 +501,49 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         if (nOrigen != null && nDestino != null) {
             Lista caminoActual = new Lista();
             caminoActual.insertar(origen, 1);
-            caminoActual.insertar(ciudadEvitar, 2); // bloqueo preventivo de C
+
+            // Lista de bloqueados SEPARADA: solo se usa para el chequeo de visita,
+            // nunca se copia al resultado. Contiene origen + la ciudad a evitar.
+            Lista bloqueados = new Lista();
+            bloqueados.insertar(origen, 1);
+            bloqueados.insertar(ciudadEvitar, 2);
+
             int[] menosMinutos = {Integer.MAX_VALUE};
-            this.caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
+            this.caminoMenosMinutosSinPasarAux(nOrigen, destino, caminoActual, bloqueados, 0,
+                    menosMinutos, mejorCamino);
         }
         return mejorCamino;
+    }
+
+    private void caminoMenosMinutosSinPasarAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+            Lista bloqueados, int minutosAcum, int[] menosMinutos, Lista mejorCamino) {
+        if (actual.getElem().equals(destino)) {
+            if (minutosAcum < menosMinutos[0]) {
+                menosMinutos[0] = minutosAcum;
+                mejorCamino.vaciar();
+                for (int i = 1; i <= caminoActual.longitud(); i++) {
+                    mejorCamino.insertar(caminoActual.recuperar(i), i);
+                }
+            }
+        } else {
+            NodoAdy<T, E> ady = actual.getPrimerAdy();
+            while (ady != null) {
+                T elemAdy = ady.getVertice().getElem();
+                int tiempoAdy = (Integer) ady.getEtiqueta();
+                int nuevoTiempo = minutosAcum + tiempoAdy;
+                // Chequeo sobre 'bloqueados', no sobre 'caminoActual'
+                if (bloqueados.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) {
+                    caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
+                    bloqueados.insertar(elemAdy, bloqueados.longitud() + 1);
+                    this.caminoMenosMinutosSinPasarAux(ady.getVertice(), destino, caminoActual,
+                            bloqueados, nuevoTiempo, menosMinutos, mejorCamino);
+                    // Backtracking en ambas listas
+                    caminoActual.eliminar(caminoActual.longitud());
+                    bloqueados.eliminar(bloqueados.longitud());
+                }
+                ady = ady.getSigAdyacente();
+            }
+        }
     }
 
     //  TPO consigna 6.d (*) — TODOS LOS CAMINOS DE A A B

@@ -81,63 +81,87 @@ public class Menu {
 
     private void agregarCiudad() {
         System.out.print("Nombre: ");
-        String nombre = sc.nextLine();
+        String nombre = sc.nextLine().trim().toUpperCase();
         System.out.print("¿Tiene alojamiento? (true/false): ");
         boolean aloj = leerBoolean();
         System.out.print("¿Es sede? (true/false): ");
         boolean sede = leerBoolean();
-        if (copa.agregarCiudad(nombre, aloj, sede))
+        if (copa.agregarCiudad(nombre, aloj, sede)) {
             System.out.println("Ciudad agregada.");
-        else
+            copa.getLogger().registrar("ABM Ciudad - Alta: se agregó la ciudad " + nombre
+                    + " (Alojamiento: " + aloj + ", Sede: " + sede + ")");
+        } else {
             System.out.println("Error: la ciudad ya existe.");
+            copa.getLogger()
+                    .registrar("ABM Ciudad - Alta FALLIDA: la ciudad " + nombre + " ya existe");
+        }
     }
 
     private void modificarCiudad() {
         System.out.print("Nombre de la ciudad a modificar: ");
-        String nombre = sc.nextLine();
+        String nombre = sc.nextLine().trim().toUpperCase();
         System.out.print("¿Nuevo alojamiento? (vacío para no cambiar): ");
-        String alojStr = sc.nextLine();
+        String alojStr = sc.nextLine().trim();
         Boolean aloj = alojStr.isEmpty() ? null : Boolean.parseBoolean(alojStr);
         System.out.print("¿Nueva sede? (vacío para no cambiar): ");
-        String sedeStr = sc.nextLine();
+        String sedeStr = sc.nextLine().trim();
         Boolean sede = sedeStr.isEmpty() ? null : Boolean.parseBoolean(sedeStr);
-        if (copa.modificarCiudad(nombre, aloj, sede))
+        if (copa.modificarCiudad(nombre, aloj, sede)) {
             System.out.println("Ciudad modificada.");
-        else
+            copa.getLogger()
+                    .registrar("ABM Ciudad - Modificación: " + nombre
+                            + (aloj != null ? " | Alojamiento -> " + aloj : "")
+                            + (sede != null ? " | Sede -> " + sede : ""));
+        } else {
             System.out.println("Ciudad no encontrada.");
+            copa.getLogger().registrar(
+                    "ABM Ciudad - Modificación FALLIDA: ciudad " + nombre + " no encontrada");
+        }
     }
 
     private void eliminarCiudad() {
         System.out.print("Nombre de la ciudad a eliminar: ");
-        String nombre = sc.nextLine();
-        if (copa.eliminarCiudad(nombre))
+        String nombre = sc.nextLine().trim().toUpperCase();
+        if (copa.eliminarCiudad(nombre)) {
             System.out.println("Ciudad eliminada.");
-        else
+            copa.getLogger().registrar("ABM Ciudad - Baja: se eliminó la ciudad " + nombre);
+        } else {
             System.out.println("Ciudad no encontrada o no se pudo eliminar.");
+            copa.getLogger()
+                    .registrar("ABM Ciudad - Baja FALLIDA: ciudad " + nombre + " no encontrada");
+        }
     }
 
     private void agregarRuta() {
         System.out.print("Ciudad origen: ");
-        String origen = sc.nextLine();
+        String origen = sc.nextLine().trim().toUpperCase();
         System.out.print("Ciudad destino: ");
-        String destino = sc.nextLine();
+        String destino = sc.nextLine().trim().toUpperCase();
         System.out.print("Tiempo de vuelo (minutos): ");
         int tiempo = leerEntero("");
-        if (copa.agregarRuta(origen, destino, tiempo))
+        if (copa.agregarRuta(origen, destino, tiempo)) {
             System.out.println("Ruta agregada.");
-        else
+            copa.getLogger().registrar("ABM Ciudad - Alta de ruta: " + origen + " <-> " + destino
+                    + " (" + tiempo + " min)");
+        } else {
             System.out.println("Error: alguna ciudad no existe o la ruta ya existe.");
+            copa.getLogger()
+                    .registrar("ABM Ciudad - Alta de ruta FALLIDA: " + origen + " <-> " + destino);
+        }
     }
 
     private void eliminarRuta() {
         System.out.print("Ciudad origen: ");
-        String origen = sc.nextLine();
+        String origen = sc.nextLine().trim().toUpperCase();
         System.out.print("Ciudad destino: ");
-        String destino = sc.nextLine();
+        String destino = sc.nextLine().trim().toUpperCase();
         if (copa.eliminarRuta(origen, destino)) {
             System.out.println("Ruta eliminada.");
+            copa.getLogger().registrar("ABM Ciudad - Baja de ruta: " + origen + " <-> " + destino);
         } else {
             System.out.println("Error: ruta no existe o ciudades no válidas.");
+            copa.getLogger()
+                    .registrar("ABM Ciudad - Baja de ruta FALLIDA: " + origen + " <-> " + destino);
         }
     }
 
@@ -160,54 +184,71 @@ public class Menu {
 
     private void agregarEquipo() {
         System.out.print("Nombre del país: ");
-        String nombre = sc.nextLine();
+        String nombre = sc.nextLine().trim().toUpperCase();
         System.out.print("Director técnico: ");
-        String dt = sc.nextLine();
+        String dt = sc.nextLine().trim();
         System.out.print("Grupo (A/B/C/D): ");
-        char grupo = sc.nextLine().toUpperCase().charAt(0);
-        if (copa.agregarEquipo(nombre, dt, grupo))
+        char grupo = sc.nextLine().trim().toUpperCase().charAt(0);
+        if (copa.agregarEquipo(nombre, dt, grupo)) {
             System.out.println("Equipo agregado.");
-        else
+            copa.getLogger().registrar(
+                    "ABM Equipo - Alta: " + nombre + " (DT: " + dt + ", Grupo: " + grupo + ")");
+        } else {
             System.out.println("Error: el equipo ya existe.");
+            copa.getLogger()
+                    .registrar("ABM Equipo - Alta FALLIDA: el equipo " + nombre + " ya existe");
+        }
     }
 
     private void modificarEquipo() {
         System.out.print("Nombre del país a modificar: ");
-        String nombre = sc.nextLine();
+        String nombre = sc.nextLine().trim().toUpperCase();
         System.out.print("Nuevo DT (vacío para no cambiar): ");
-        String dt = sc.nextLine();
-        if (dt.isEmpty()) dt = null;
+        String dt = sc.nextLine().trim();
+        if (dt.isEmpty())
+            dt = null;
         System.out.print("Nuevo grupo (vacío para no cambiar): ");
-        String grupoStr = sc.nextLine();
+        String grupoStr = sc.nextLine().trim();
         Character grupo = grupoStr.isEmpty() ? null : grupoStr.toUpperCase().charAt(0);
-        if (copa.modificarEquipo(nombre, dt, grupo))
+        if (copa.modificarEquipo(nombre, dt, grupo)) {
             System.out.println("Equipo modificado.");
-        else
+            copa.getLogger()
+                    .registrar("ABM Equipo - Modificación: " + nombre
+                            + (dt != null ? " | DT -> " + dt : "")
+                            + (grupo != null ? " | Grupo -> " + grupo : ""));
+        } else {
             System.out.println("Equipo no encontrado.");
+            copa.getLogger().registrar(
+                    "ABM Equipo - Modificación FALLIDA: equipo " + nombre + " no encontrado");
+        }
     }
 
     private void eliminarEquipo() {
         System.out.print("Nombre del país a eliminar: ");
-        String nombre = sc.nextLine();
-        if (copa.eliminarEquipo(nombre))
+        String nombre = sc.nextLine().trim().toUpperCase();
+        if (copa.eliminarEquipo(nombre)) {
             System.out.println("Equipo eliminado.");
-        else
+            copa.getLogger().registrar("ABM Equipo - Baja: se eliminó el equipo " + nombre);
+        } else {
             System.out.println("Equipo no encontrado.");
+            copa.getLogger()
+                    .registrar("ABM Equipo - Baja FALLIDA: equipo " + nombre + " no encontrado");
+        }
     }
 
     // Alta de partido
     private void altaPartido() {
         System.out.println("--- Alta de partido ---");
         System.out.print("Equipo 1: ");
-        String eq1 = sc.nextLine();
+        String eq1 = sc.nextLine().trim().toUpperCase();
         System.out.print("Equipo 2: ");
-        String eq2 = sc.nextLine();
+        String eq2 = sc.nextLine().trim().toUpperCase();
         System.out.print("Ronda (ej. GRUPO, CUARTOS, SEMIFINAL, FINAL): ");
-        String ronda = sc.nextLine();
+        String ronda = sc.nextLine().trim().toUpperCase();
         System.out.print("Ciudad del evento: ");
-        String ciudad = sc.nextLine();
+        String ciudad = sc.nextLine().trim().toUpperCase();
         System.out.print("Estadio: ");
-        String estadio = sc.nextLine();
+        String estadio = sc.nextLine().trim().toUpperCase();
         System.out.print("Goles de " + eq1 + ": ");
         int g1 = leerEntero("");
         System.out.print("Goles de " + eq2 + ": ");
@@ -228,14 +269,14 @@ public class Menu {
         switch (op) {
             case 1 -> {
                 System.out.print("Nombre del país: ");
-                String nombre = sc.nextLine();
+                String nombre = sc.nextLine().trim().toUpperCase();
                 System.out.println(copa.mostrarInfoEquipo(nombre));
             }
             case 2 -> {
                 System.out.print("Límite inferior (min): ");
-                String min = sc.nextLine();
+                String min = sc.nextLine().trim().toUpperCase();
                 System.out.print("Límite superior (max): ");
-                String max = sc.nextLine();
+                String max = sc.nextLine().trim().toUpperCase();
                 Lista lista = copa.equiposEnRango(min, max);
                 if (lista == null || lista.longitud() == 0)
                     System.out.println("No hay equipos en ese rango.");
@@ -285,9 +326,9 @@ public class Menu {
     private void consultasViajes() {
         System.out.println("\n--- Consultas de viajes ---");
         System.out.print("Ciudad origen: ");
-        String origen = sc.nextLine();
+        String origen = sc.nextLine().trim().toUpperCase();
         System.out.print("Ciudad destino: ");
-        String destino = sc.nextLine();
+        String destino = sc.nextLine().trim().toUpperCase();
         System.out.println("1. Camino con mínima cantidad de ciudades");
         System.out.println("2. Camino de menor tiempo");
         System.out.println("3. Camino más corto evitando una ciudad");
@@ -301,7 +342,7 @@ public class Menu {
                     "Camino de menor tiempo");
             case 3 -> {
                 System.out.print("Ciudad a evitar: ");
-                String evitar = sc.nextLine();
+                String evitar = sc.nextLine().trim().toUpperCase();
                 if (evitar.equalsIgnoreCase(origen) || evitar.equalsIgnoreCase(destino)) {
                     System.out.println("La ciudad a evitar no puede ser el origen ni el destino.");
                 } else {
