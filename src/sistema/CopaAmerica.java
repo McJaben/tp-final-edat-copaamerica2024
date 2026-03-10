@@ -518,7 +518,8 @@ public class CopaAmerica {
     public String mostrarEstructuras() {
         StringBuilder sb = new StringBuilder();
         sb.append("===== EQUIPOS (AVL) =====\n");
-        sb.append(equipos.toString()); // asume que el AVL tiene toString en orden
+        sb.append("toString del AVL: \n");
+        sb.append(equipos.toString()); // toString del ArbolAVL
         sb.append("\n===== CIUDADES (GRAFO) =====\n");
         sb.append(mapaCiudades.toString());
         sb.append("\n===== PARTIDOS (HASHMAP) =====\n");

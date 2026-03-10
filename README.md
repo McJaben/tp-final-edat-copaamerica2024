@@ -158,6 +158,16 @@ Se guardan clones del camino actual cada vez que se alcanza el destino. El resul
 
 ---
 
+## Notas o aclaraciones varias
+- La mayoría de los TDA se implementaron usando genéricos (`<T>` o `<T extends Comparable<T>>`) para lograr **tipo seguro** y evitar los warnings que los IDEs generan en Java 17+ cuando se usa `Object` o el raw `Comparable` (Ej: _"Comparable is a raw type. References to generic type Comparable should be parameterized"_ o _"Type safety: The method compareTo(Object) belongs to the raw type Comparable. References to generic type Comparable should be parameterized"_).
+  - En particular, `ArbolAVL`, `HeapMin` y `Grafo` son genéricos porque necesitan poder comparar y/o almacenar distintos tipos de elementos sin castear.
+  - `Lista` y `Cola` mantienen una implementación más simple (basada en `Object`) debido a que así fueron implementadas durante la cursada y se puede ver cómo es necesario realizar casteos en varias partes del sistema por este tipo de implementación.
+
+  Para aprender a implementar TDAs genéricos (sin usar sólo Object o Comparable) consulté recursos como StackOverflow, LLMs y estos videos del canal de YouTube "makigas":
+  - [¿Qué es un genérico? (en Java, aunque es igual en todas partes)](https://youtu.be/ai4HH6CI_08?si=QJ5FEdP1eA-f9dfz)
+  - [Genéricos en Java: cómo crear tu propia clase](https://youtu.be/OtSd9NCXdGc?si=eNgd8T_zNC1-UT_H)
+  - [Genéricos de Java con restricción de tipos](https://youtu.be/Qf2dj-Xxiz8?si=88bAmSkgFmPsLuEm)
+
 ## Autor
 
 **Benjamín Morales**  

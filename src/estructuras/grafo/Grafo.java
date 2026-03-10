@@ -551,10 +551,65 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     //  toString() — consigna 8 del TPO (debugging)
 
+    // /**
+    //  * Muestra todas las ciudades y sus rutas con el tiempo en minutos.
+    //  * Ejemplo:
+    //  *   MIAMI [SEDE] [Alojamiento] --> [90 min → LAS VEGAS] [320 min → LOS ANGELES]
+    //  */
+    // @Override
+    // public String toString() {
+    //     StringBuilder sb = new StringBuilder();
+    //     if (this.inicio == null) {
+    //         sb.append("Grafo vacío\n");
+    //     } else {
+    //         sb.append("=== Mapa de Ciudades (Grafo) ===\n");
+    //         NodoVert<T, E> nv = this.inicio;
+    //         while (nv != null) {
+    //             sb.append(nv.getElem().toString()).append(" --> ");
+    //             NodoAdy<T, E> ady = nv.getPrimerAdy();
+    //             if (ady == null) {
+    //                 sb.append("[sin rutas]");
+    //             }
+    //             while (ady != null) {
+    //                 sb.append("[")
+    //                   .append(ady.getEtiqueta())
+    //                   .append(" min → ")
+    //                   .append(ady.getVertice().getElem().toString())
+    //                   .append("] ");
+    //                 ady = ady.getSigAdyacente();
+    //             }
+    //             sb.append("\n");
+    //             nv = nv.getSigVertice();
+    //         }
+    //     }
+    //     return sb.toString();
+    // }
+
+    //  toString() — Versión mejorada para el TPO (debugging y visualización)
+
     /**
-     * Muestra todas las ciudades y sus rutas con el tiempo en minutos.
-     * Ejemplo:
-     *   MIAMI [SEDE] [Alojamiento] --> [90 min → LAS VEGAS] [320 min → LOS ANGELES]
+     * Muestra todas las ciudades y sus rutas aéreas en un formato jerárquico y legible.
+     * Cada ciudad se lista como un encabezado, y sus rutas salientes se muestran
+     * indentadas, una por línea, con el tiempo de vuelo y el destino.
+     * También indica si la ciudad es sede y si tiene alojamiento.
+     *
+     * Ejemplo de salida:
+     * === Mapa de Ciudades (Grafo) ===
+     * ATLANTA [SEDE] [Alojamiento]
+     *   --> [115 min → CHICAGO]
+     *   --> [130 min → DALLAS]
+     *   --> [85 min → ORLANDO]
+     *   --> [75 min → CHARLOTTE]
+     *   --> [110 min → MIAMI]
+     *   --> [130 min → AUSTIN]
+     *
+     * AUSTIN [SEDE] [Alojamiento]
+     *   --> [50 min → DALLAS]
+     *
+     * CHICAGO [Alojamiento]
+     *   --> [165 min → DENVER]
+     *   --> [240 min → SEATTLE]
+     *   --> [145 min → BOSTON]
      */
     @Override
     public String toString() {
@@ -563,23 +618,38 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
             sb.append("Grafo vacío\n");
         } else {
             sb.append("=== Mapa de Ciudades (Grafo) ===\n");
-            NodoVert<T, E> nv = this.inicio;
-            while (nv != null) {
-                sb.append(nv.getElem().toString()).append(" --> ");
-                NodoAdy<T, E> ady = nv.getPrimerAdy();
-                if (ady == null) {
-                    sb.append("[sin rutas]");
+            NodoVert<T, E> verticeActual = this.inicio;
+
+            // Recorremos todos los vértices (ciudades) del grafo
+            while (verticeActual != null) {
+                T elementoCiudad = verticeActual.getElem(); // Asumo que T es tu clase Ciudad
+
+                // --- 1. Mostrar la ciudad con sus propiedades ---
+                // Aprovechamos el toString() de Ciudad para mostrar los tags de SEDE/ALOJAMIENTO.
+                sb.append(elementoCiudad.toString()).append("\n");
+
+                // --- 2. Mostrar las rutas (adyacentes) indentadas ---
+                NodoAdy<T, E> adyacenteActual = verticeActual.getPrimerAdy();
+
+                if (adyacenteActual == null) {
+                    sb.append("\t[sin rutas salientes]\n");
+                } else {
+                    while (adyacenteActual != null) {
+                        // Indentación con tabulador para claridad visual
+                        sb.append("\t--> [")
+                        .append(adyacenteActual.getEtiqueta()) // El peso (minutos)
+                        .append(" min → ")
+                        .append(adyacenteActual.getVertice().getElem().toString()) // Nombre ciudad destino
+                        .append("]\n");
+
+                        adyacenteActual = adyacenteActual.getSigAdyacente();
+                    }
                 }
-                while (ady != null) {
-                    sb.append("[")
-                      .append(ady.getEtiqueta())
-                      .append(" min → ")
-                      .append(ady.getVertice().getElem().toString())
-                      .append("] ");
-                    ady = ady.getSigAdyacente();
-                }
-                sb.append("\n");
-                nv = nv.getSigVertice();
+                // Línea en blanco opcional para separar ciudades visualmente
+                // sb.append("\n");
+
+                // Avanzamos al siguiente vértice en la lista
+                verticeActual = verticeActual.getSigVertice();
             }
         }
         return sb.toString();

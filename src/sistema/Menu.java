@@ -376,8 +376,12 @@ public class Menu {
 
     // Carga desde archivo
     private void cargarDatosIniciales() {
-        System.out.print("Ingrese la ruta del archivo de carga: ");
+        System.out.print(
+                "Ingrese la ruta del archivo de carga o no ingrese nada y se usará 'cargaInicial.txt' por defecto: ");
         String ruta = sc.nextLine();
+        if (ruta.isEmpty()) {
+            ruta = "cargaInicial.txt";
+        }
         if (copa.cargarDesdeArchivo(ruta)) {
             System.out.println("Datos cargados correctamente.");
         } else {

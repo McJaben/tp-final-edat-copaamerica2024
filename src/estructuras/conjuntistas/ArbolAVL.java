@@ -633,10 +633,11 @@ public class ArbolAVL<T extends Comparable<T>> {
     }
 
     private String toStringAux(NodoAVL<T> nodo) {
-        // método Privado que recorre el árbol por niveles y va guardando los
-        // elementos de cada nodo y sus hijos en un String para luego retornarlo
+        // Método privado que recorre el árbol por niveles y va guardando los
+        // elementos de cada nodo y sus hijos en un String para luego retornarlo.
+        // El formato es "nodo\n  - HI: ...\n  - HD: ..." para mejorar legibilidad.
         String cadena = "";
-        // si el arbol está vacío, esto no se ejecuta y devuelve una cadena vacía
+        // si el árbol está vacío, esto no se ejecuta y devuelve una cadena vacía
         if (nodo != null) {
             int elementosEnNivel = 1; // Número de elementos en el nivel actual
             Cola cola = new Cola();
@@ -645,6 +646,7 @@ public class ArbolAVL<T extends Comparable<T>> {
             // Mientras la cola no sea vacía
             while (!cola.esVacia()) {
                 int elementosSigNivel = 0; // Número de elementos en el siguiente nivel
+
                 // Recorremos todos los nodos del nivel actual y los insertamos en la lista
                 for (int i = 0; i < elementosEnNivel; i++) {
                     // Obtengo el nodo actual de la cola
@@ -653,21 +655,26 @@ public class ArbolAVL<T extends Comparable<T>> {
                     NodoAVL<T> actual = (NodoAVL<T>) cola.obtenerFrente();
                     // Sacamos el nodo actual de la cola
                     cola.sacar();
-                    cadena += actual.getElem();
-                    // Agregamos los hijos del nodo actual a la cola, si existen
+
+                    // Nodo actual
+                    cadena += actual.getElem() + "\n";
+
+                    // HI
                     if (actual.getIzquierdo() != null) {
                         cola.poner(actual.getIzquierdo());
-                        cadena += " HI: " + actual.getIzquierdo().getElem();
+                        cadena += "  - HI: " + actual.getIzquierdo().getElem() + "\n";
                         elementosSigNivel++;
                     } else {
-                        cadena += " HI: -";
+                        cadena += "  - HI: -\n";
                     }
+
+                    // HD
                     if (actual.getDerecho() != null) {
                         cola.poner(actual.getDerecho());
-                        cadena += " HD: " + actual.getDerecho().getElem() + "\n";
+                        cadena += "  - HD: " + actual.getDerecho().getElem() + "\n";
                         elementosSigNivel++;
                     } else {
-                        cadena += " HD: - \n";
+                        cadena += "  - HD: -\n";
                     }
                 }
                 // Actualizamos el número de elementos

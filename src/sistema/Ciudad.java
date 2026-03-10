@@ -83,19 +83,22 @@ public class Ciudad implements Comparable<Ciudad> {
 
     /**
      * toString informativo para debugging y para mostrar información de la ciudad en las consultas
-     * (punto 8 del TPO). Ejemplo de salida: "Ciudad: MIAMI | Alojamiento: true | Sede: true"
+     * (punto 8 del TPO).
+     *
+     * Formato: "Ciudad: NOMBRE [SEDE] [Alojamiento]"
+     * (Los tags se incluyen solo si corresponden).
      */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Ciudad: ");
-        sb.append(this.nombre);
-        sb.append(" | Alojamiento: ");
-        sb.append(this.tieneAlojamiento); // quizás podría cambiar a "Si/No", pero dejo boolean por ahora
-        sb.append(" | Sede: ");
-        sb.append(this.esSede);
-
+        sb.append("Ciudad: ").append(this.nombre);
+        if (this.esSede) {
+            sb.append(" [SEDE]");
+        }
+        if (this.tieneAlojamiento) {
+            sb.append(" [Alojamiento]");
+        }
         return sb.toString();
     }
 }
