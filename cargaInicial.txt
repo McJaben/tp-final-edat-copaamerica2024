@@ -1,1 +1,184 @@
-# Acá va a estar el set de datos iniciales del sistema. O quizás lo divida en distintos lotes de archivos, está en progreso.
+# ============================================================
+# CARGA INICIAL - SISTEMA COPA AMERICA 2024
+# Universidad Nacional del Comahue - FAI
+# Estructuras de Datos - Trabajo Final
+# ============================================================
+#
+# FORMATO:
+#   E: NOMBRE_PAIS; APELLIDO_TECNICO; GRUPO
+#   C: NOMBRE_CIUDAD; TIENE_ALOJAMIENTO; ES_SEDE
+#   R: CIUDAD_ORIGEN; CIUDAD_DESTINO; MINUTOS_VUELO
+#   P: EQUIPO1; EQUIPO2; RONDA; CIUDAD; ESTADIO; GOLES_EQ1; GOLES_EQ2
+#
+# NOTA: Equipos listados INTENCIONALMENTE DESORDENADOS para forzar
+#       rotaciones en el AVL durante la insercion.
+# ============================================================
+
+# ============================================================
+# EQUIPOS (16 equipos - orden desordenado para rotaciones AVL)
+# ============================================================
+
+# Grupo A (4 equipos)
+E: CANADA; MARSH; A
+E: PERU; FOSSATI; A
+E: CHILE; GARECA; A
+E: ARGENTINA; SCALONI; A
+
+# Grupo B (4 equipos) - intercalados con otros grupos
+E: MEXICO; LOZANO; B
+E: VENEZUELA; BATISTA; B
+E: JAMAICA; HALLGRIMSSON; B
+E: ECUADOR; SANCHEZ; B
+
+# Grupo C (4 equipos) - mas desorden
+E: URUGUAY; BIELSA; C
+E: BOLIVIA; ZAGO; C
+E: ESTADOS_UNIDOS; BERHALTER; C
+E: PANAMA; CHRISTIANSEN; C
+
+# Grupo D (4 equipos) - orden invertido
+E: PARAGUAY; GARNEIRO; D
+E: COLOMBIA; LORENZO; D
+E: COSTA_RICA; ALFARO; D
+E: BRASIL; DORIVAL; D
+
+# ============================================================
+# CIUDADES (20 ciudades - sedes y ciudades de conexion/escala)
+# ============================================================
+
+# Sedes principales del torneo (14 sedes)
+C: ATLANTA; TRUE; TRUE
+C: AUSTIN; TRUE; TRUE
+C: CHARLOTTE; TRUE; TRUE
+C: ARLINGTON; TRUE; TRUE
+C: EAST_RUTHERFORD; TRUE; TRUE
+C: HOUSTON; TRUE; TRUE
+C: INGLEWOOD; TRUE; TRUE
+C: SANTA_CLARA; TRUE; TRUE
+C: GLENDALE; TRUE; TRUE
+C: KANSAS_CITY; TRUE; TRUE
+C: LAS_VEGAS; TRUE; TRUE
+C: MIAMI; TRUE; TRUE
+C: ORLANDO; TRUE; TRUE
+C: SEATTLE; TRUE; TRUE
+
+# Ciudades adicionales para escalas (no sedes, algunas con/sin alojamiento)
+C: CHICAGO; TRUE; FALSE
+C: DENVER; TRUE; FALSE
+C: BOSTON; FALSE; FALSE
+C: DALLAS; TRUE; FALSE
+C: PHOENIX; FALSE; FALSE
+C: NEW_ORLEANS; TRUE; FALSE
+
+# ============================================================
+# RUTAS AEREAS (40 rutas - grafo conexo con multiples caminos)
+# ============================================================
+
+# Rutas desde ATLANTA (hub importante)
+R: ATLANTA; AUSTIN; 130
+R: ATLANTA; CHARLOTTE; 75
+R: ATLANTA; MIAMI; 110
+R: ATLANTA; ORLANDO; 85
+R: ATLANTA; CHICAGO; 115
+R: ATLANTA; DALLAS; 130
+
+# Rutas desde ARLINGTON/DALLAS area
+R: ARLINGTON; DALLAS; 25
+R: ARLINGTON; HOUSTON; 50
+R: ARLINGTON; DENVER; 130
+R: ARLINGTON; PHOENIX; 165
+
+# Rutas desde EAST_RUTHERFORD/Nueva York area
+R: EAST_RUTHERFORD; BOSTON; 65
+R: EAST_RUTHERFORD; CHARLOTTE; 90
+R: EAST_RUTHERFORD; CHICAGO; 125
+
+# Rutas desde HOUSTON
+R: HOUSTON; MIAMI; 155
+R: HOUSTON; NEW_ORLEANS; 65
+R: HOUSTON; DALLAS; 50
+
+# Rutas desde INGLEWOOD/Los Angeles area
+R: INGLEWOOD; LAS_VEGAS; 75
+R: INGLEWOOD; PHOENIX; 95
+R: INGLEWOOD; SANTA_CLARA; 85
+R: INGLEWOOD; SEATTLE; 160
+
+# Rutas desde LAS_VEGAS
+R: LAS_VEGAS; PHOENIX; 70
+R: LAS_VEGAS; DENVER; 115
+R: LAS_VEGAS; SEATTLE; 140
+
+# Rutas desde MIAMI
+R: MIAMI; ORLANDO; 50
+R: MIAMI; CHARLOTTE; 110
+
+# Rutas desde CHICAGO (hub central)
+R: CHICAGO; DENVER; 165
+R: CHICAGO; SEATTLE; 240
+R: CHICAGO; BOSTON; 145
+
+# Rutas desde DENVER
+R: DENVER; PHOENIX; 110
+R: DENVER; SEATTLE; 165
+R: DENVER; KANSAS_CITY; 90
+
+# Rutas desde KANSAS_CITY
+R: KANSAS_CITY; DALLAS; 85
+R: KANSAS_CITY; CHICAGO; 75
+
+# Rutas desde GLENDALE/Phoenix area
+R: GLENDALE; PHOENIX; 20
+R: GLENDALE; LAS_VEGAS; 80
+R: GLENDALE; INGLEWOOD; 90
+
+# Rutas adicionales para conectividad
+R: SANTA_CLARA; SEATTLE; 135
+R: AUSTIN; DALLAS; 50
+R: NEW_ORLEANS; ATLANTA; 105
+R: BOSTON; ORLANDO; 180
+
+# ============================================================
+# PARTIDOS (20 partidos - fase de grupos y algunos de eliminacion)
+# ============================================================
+
+# NOTA: eq1 siempre alfabeticamente menor que eq2
+# Rondas: GRUPO, CUARTOS, SEMIFINALES, FINAL
+
+# --- FASE DE GRUPOS (16 partidos, 4 por grupo) ---
+
+# Grupo A
+P: ARGENTINA; CANADA; GRUPO; ATLANTA; MERCEDES_BENZ; 2; 0
+P: ARGENTINA; CHILE; GRUPO; EAST_RUTHERFORD; METLIFE; 1; 0
+P: CANADA; PERU; GRUPO; KANSAS_CITY; ARROWHEAD; 1; 0
+P: CHILE; PERU; GRUPO; ARLINGTON; AT_AND_T; 0; 0
+
+# Grupo B
+P: ECUADOR; JAMAICA; GRUPO; ARLINGTON; AT_AND_T; 3; 1
+P: ECUADOR; VENEZUELA; GRUPO; SANTA_CLARA; LEVIS; 1; 2
+P: MEXICO; ECUADOR; GRUPO; GLENDALE; STATE_FARM; 0; 0
+P: MEXICO; JAMAICA; GRUPO; HOUSTON; NRG; 1; 0
+
+# Grupo C
+P: BOLIVIA; ESTADOS_UNIDOS; GRUPO; ARLINGTON; AT_AND_T; 0; 2
+P: BOLIVIA; URUGUAY; GRUPO; EAST_RUTHERFORD; METLIFE; 0; 5
+P: ESTADOS_UNIDOS; PANAMA; GRUPO; ATLANTA; MERCEDES_BENZ; 1; 2
+P: PANAMA; URUGUAY; GRUPO; MIAMI; HARD_ROCK; 1; 3
+
+# Grupo D
+P: BRASIL; COSTA_RICA; GRUPO; INGLEWOOD; SOFI; 0; 0
+P: BRASIL; PARAGUAY; GRUPO; LAS_VEGAS; ALLEGIANT; 4; 1
+P: COLOMBIA; BRASIL; GRUPO; SANTA_CLARA; LEVIS; 2; 1
+P: COLOMBIA; COSTA_RICA; GRUPO; AUSTIN; Q2; 3; 0
+
+# --- FASE DE ELIMINACION (4 partidos de ejemplo) ---
+# Nota: Estos partidos repiten enfrentamientos posibles (grupo vs eliminatoria)
+
+P: ARGENTINA; ECUADOR; CUARTOS; HOUSTON; NRG; 1; 1
+P: CANADA; VENEZUELA; CUARTOS; AUSTIN; Q2; 1; 1
+P: COLOMBIA; PANAMA; CUARTOS; GLENDALE; STATE_FARM; 5; 0
+P: URUGUAY; BRASIL; CUARTOS; LAS_VEGAS; ALLEGIANT; 0; 0
+
+# ============================================================
+# FIN DEL ARCHIVO DE CARGA INICIAL
+# ============================================================
