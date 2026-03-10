@@ -398,31 +398,55 @@ public class Menu {
                     String origen = sc.nextLine().trim().toUpperCase();
                     System.out.print("Ciudad destino: ");
                     String destino = sc.nextLine().trim().toUpperCase();
-                    
+
                     // Lista de listas de ciudades (cada lista es un camino posible)
                     Lista todos = copa.todosLosCaminos(origen, destino);
+
                     if (todos == null || todos.longitud() == 0) {
                         System.out.println("No hay caminos.");
                     } else {
-                        System.out.println("Todos los caminos posibles:");
-                        for (int i = 1; i <= todos.longitud(); i++) {
-                            Lista camino = (Lista) todos.recuperar(i);
-                            mostrarCamino(camino, "Camino " + i);
+                        // Generar nombre de archivo con timestamp
+                        String timestamp = java.time.LocalDateTime.now().format(
+                                java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+                        String nombreArchivo =
+                                String.format("caminos_%s_%s_%s.log", origen, destino, timestamp);
+
+                        System.out.println(
+                                "Generando reporte de " + todos.longitud() + " caminos...");
+                        System.out.println("Esto puede tomar unos segundos...");
+
+                        // Formatear TODOS los caminos (sin filtro)
+                        String contenidoTodos = copa.formatearCaminosParaArchivo(todos,
+                                "TODOS LOS CAMINOS DE " + origen + " A " + destino);
+
+                        // Guardar archivo de todos los caminos
+                        if (guardarEnArchivo(contenidoTodos, "TODOS_" + nombreArchivo)) {
+                            System.out.println("✓ Archivo guardado: TODOS_" + nombreArchivo);
                         }
-                        
-                        // Lista de listas de ciudades filtrada por alojamiento
+
+                        // Filtrar por alojamiento
                         Lista filtrados = copa.filtrarCaminosConAlojamiento(todos);
-                        System.out.println("\nCaminos con alojamiento disponible:");
-                        if (filtrados.longitud() == 0) {
-                            System.out.println("Ninguno.");
-                        } else {
-                            for (int i = 1; i <= filtrados.longitud(); i++) {
-                                Lista caminoAlojamiento = (Lista) filtrados.recuperar(i);
-                                mostrarCamino(caminoAlojamiento, "Camino con alojamiento " + i);
-                            }
-                            System.out.println("Total de caminos encontrados: " + todos.longitud());
-                            System.out.println("Total de caminos con alojamiento: " + filtrados.longitud());
+
+                        // Formatear caminos con alojamiento
+                        String contenidoFiltrados = copa.formatearCaminosParaArchivo(filtrados,
+                                "CAMINOS CON ALOJAMIENTO DE " + origen + " A " + destino
+                                        + " (Total: " + filtrados.longitud() + " de "
+                                        + todos.longitud() + ")");
+
+                        // Guardar archivo de caminos filtrados
+                        if (guardarEnArchivo(contenidoFiltrados, "ALOJAMIENTO_" + nombreArchivo)) {
+                            System.out.println("✓ Archivo guardado: ALOJAMIENTO_" + nombreArchivo);
                         }
+
+                        // Mostrar solo un resumen en pantalla
+                        System.out.println("\n=== RESUMEN ===");
+                        System.out.println("Total de caminos encontrados: " + todos.longitud());
+                        System.out.println("Caminos con alojamiento: " + filtrados.longitud());
+                        System.out.println("Caminos sin alojamiento: "
+                                + (todos.longitud() - filtrados.longitud()));
+                        System.out.println("\nLos detalles completos se guardaron en:");
+                        System.out.println("  - TODOS_" + nombreArchivo);
+                        System.out.println("  - ALOJAMIENTO_" + nombreArchivo);
                     }
                 }
                 // case 98 -> { // otro test
@@ -567,6 +591,25 @@ public class Menu {
             }
         } while (!valido);
         return grupoValido;
+    }
+
+    /**
+     * Guarda un String en un archivo.
+     * 
+     * @param contenido El texto a guardar
+     * @param nombreArchivo Nombre del archivo (ej. "caminos_MIAMI_DALLAS.log")
+     * @return true si se guardó correctamente, false en caso contrario
+     */
+    private boolean guardarEnArchivo(String contenido, String nombreArchivo) {
+        try (java.io.BufferedWriter writer =
+                new java.io.BufferedWriter(new java.io.FileWriter("logs/" + nombreArchivo))) {
+            writer.write(contenido);
+            return true;
+        } catch (java.io.IOException e) {
+            System.err.println(
+                    "Error al guardar el archivo " + nombreArchivo + ": " + e.getMessage());
+            return false;
+        }
     }
 
     public static void main(String[] args) {

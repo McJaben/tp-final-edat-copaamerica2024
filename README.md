@@ -67,18 +67,20 @@ tp-final-edat-copaamerica2024/
 │   │       ├── NodoAdy.java
 │   │       └── Grafo.java
 │   │
-│   └── sistema/
-│       ├── Ciudad.java
-│       ├── Equipo.java
-│       ├── ClavePartido.java
-│       ├── DatosPartido.java
-│       ├── CopaAmerica.java
-│       ├── CargadorArchivo.java
-│       ├── Logger.java
-│       └── Menu.java          ← punto de entrada (main)
-│
+│   ├── sistema/
+│   |   ├── Ciudad.java
+│   |   ├── Equipo.java
+│   |   ├── ClavePartido.java
+│   |   ├── DatosPartido.java
+│   |   ├── CopaAmerica.java
+│   |   ├── CargadorArchivo.java
+│   |   ├── Logger.java
+│   |   └── Menu.java          ← punto de entrada (main)
+│   |
+|   └── logs/
+        ├── sistema.log        ← generado en ejecución (estado inicial, operaciones, estado final)
+        └── caminos.log        ← generado al mostrar todos los caminos en opción 4 de consulta de viajes
 ├── cargaInicial.txt           ← dataset con 16 equipos, 32 partidos, 20 ciudades, 40 rutas
-├── sistema.log                ← generado en ejecución (estado inicial, operaciones, estado final)
 └── README.md
 ```
 

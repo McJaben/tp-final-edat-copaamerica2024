@@ -20,7 +20,7 @@ public class CopaAmerica {
     private ArbolAVL<Equipo> equipos;
     private Grafo<Ciudad, Integer> mapaCiudades; // Integer es el tiempo de vuelo en minutos
     private HashMap<ClavePartido, Lista> partidos; // la lista es de DatosPartido
-    private Logger logger = new Logger("sistema.log"); // Logger para registrar operaciones y errores
+    private Logger logger = new Logger("logs/sistema.log"); // Logger para registrar operaciones y errores
 
     public CopaAmerica() {
         // Inicializamos las estructuras
@@ -544,5 +544,66 @@ public class CopaAmerica {
             logger.registrarEstado("ESTADO TRAS CARGA INICIAL", this.mostrarEstructuras());
         }
         return exito;
+    }
+
+    /**
+     * Convierte una lista de caminos (Lista de Lista de Ciudad) a un String formateado para guardar
+     * en archivo.
+     * 
+     * @param caminos Lista de caminos (cada elemento es una Lista<Ciudad>)
+     * @param titulo Título descriptivo (ej. "Todos los caminos de MIAMI a DALLAS")
+     * @return String formateado para escribir en archivo
+     */
+    public String formatearCaminosParaArchivo(Lista caminos, String titulo) {
+        StringBuilder sb = new StringBuilder();
+        String separador = "=".repeat(80);
+
+        sb.append(separador).append("\n");
+        sb.append(titulo).append("\n");
+        sb.append("Fecha: ").append(java.time.LocalDateTime.now()).append("\n");
+        sb.append(separador).append("\n\n");
+
+        if (caminos == null || caminos.longitud() == 0) {
+            sb.append("No hay caminos.\n");
+        } else {
+            sb.append("TOTAL DE CAMINOS: ").append(caminos.longitud()).append("\n\n");
+
+            for (int i = 1; i <= caminos.longitud(); i++) {
+                Lista camino = (Lista) caminos.recuperar(i);
+                sb.append("Camino ").append(i).append(" (").append(camino.longitud())
+                        .append(" ciudades): ");
+
+                for (int j = 1; j <= camino.longitud(); j++) {
+                    Ciudad ciudad = (Ciudad) camino.recuperar(j);
+                    sb.append(ciudad.getNombre());
+                    if (j < camino.longitud()) {
+                        sb.append(" -> ");
+                    }
+                }
+                sb.append("\n");
+
+                // Opcional: mostrar alojamiento en cada ciudad
+                sb.append("       Alojamiento: ");
+                for (int j = 1; j <= camino.longitud(); j++) {
+                    Ciudad ciudad = (Ciudad) camino.recuperar(j);
+                    sb.append(ciudad.getTieneAlojamiento() ? "[A]" : "[ ]");
+                    if (j < camino.longitud()) {
+                        sb.append(" -> ");
+                    }
+                }
+                sb.append("\n\n");
+
+                // Cada 100 caminos, agregar un separador para no perder referencia
+                if (i % 100 == 0) {
+                    sb.append("--- Mostrados ").append(i).append(" caminos ---\n\n");
+                }
+            }
+        }
+
+        sb.append(separador).append("\n");
+        sb.append("FIN DEL REPORTE\n");
+        sb.append(separador).append("\n");
+
+        return sb.toString();
     }
 }
