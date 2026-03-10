@@ -143,8 +143,8 @@ La cola gestiona caminos parciales. El primer camino que alcanza el destino es n
 **DFS + backtracking — Menor tiempo de vuelo**  
 Se exploran todos los caminos simples acumulando tiempos. Una poda descarta ramas cuyo tiempo acumulado ya supera el mejor encontrado.
 
-**DFS con bloqueo preventivo — Evitar ciudad C**  
-La ciudad a evitar se pre-inserta en la lista de visitados antes de comenzar el DFS, bloqueándola sin modificar el grafo.
+**DFS con lista de bloqueados — Evitar ciudad C**
+Se mantienen dos listas separadas: `caminoActual`, que construye el recorrido y se copia al resultado cuando se llega al destino, y `bloqueados`, que registra los nodos ya visitados más la ciudad a evitar pre-insertada antes de iniciar el DFS. El auxiliar consulta `bloqueados` para decidir si explorar un nodo, y aplica backtracking en ambas listas al retroceder. De esta forma la ciudad bloqueada nunca aparece en el resultado y el grafo no se modifica.
 
 **DFS exhaustivo — Todos los caminos**  
 Se guardan clones del camino actual cada vez que se alcanza el destino. El resultado se puede filtrar por alojamiento disponible en ciudades intermedias o destino.
