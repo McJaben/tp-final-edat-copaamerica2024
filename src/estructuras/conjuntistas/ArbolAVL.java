@@ -36,7 +36,7 @@ public class ArbolAVL<T extends Comparable<T>> {
     private static class Resultado<T> {
         NodoAVL<T> nodo; // nueva raíz del subárbol (posiblemente modificada por rotaciones)
         boolean exito; // indica si la operación modificó el árbol (true) o no (false)
-
+        
         Resultado(NodoAVL<T> nodo, boolean exito) {
             this.nodo = nodo;
             this.exito = exito;
@@ -281,7 +281,6 @@ public class ArbolAVL<T extends Comparable<T>> {
                 // Buscar en derecha
                 res = eliminarAux(n.getDerecho(), elem);
                 n.setDerecho(res.nodo);
-
                 // A la vuelta: balancear si hubo eliminación
                 if (res.exito) {
                     res.nodo = balancear(n);
@@ -289,6 +288,7 @@ public class ArbolAVL<T extends Comparable<T>> {
                     res.nodo = n;
                 }
             }
+            // TODO: sacar exito acá
         }
 
         return res;

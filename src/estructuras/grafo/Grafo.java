@@ -151,6 +151,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      * @return true si se eliminó correctamente, false si no existía el vértice
      */
     public boolean eliminarVertice(T ciudad) {
+        // TODO: mejorar eficiencia del recorrido
         boolean exito = false;
         NodoVert<T, E> aBorrar = this.ubicarVertice(ciudad);
         if (aBorrar != null) {
@@ -380,7 +381,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      *
      * Devuelve Lista vacía si algún vértice no existe o no hay camino.
      */
-    public Lista caminoMenosEscalas(T origen, T destino) {
+    public Lista caminoMenosEscalas(T origen, T destino) { // CaminoMenosVertices
         Lista resultado = new Lista();
         NodoVert<T, E> nOrigen = ubicarVertice(origen);
         NodoVert<T, E> nDestino = ubicarVertice(destino);
@@ -412,7 +413,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                         nuevoCamino.insertar(elemAdy, nuevoCamino.longitud() + 1);
                         if (elemAdy.equals(destino)) {
                             resultado = nuevoCamino; // primer camino completo en BFS
-                            break;
+                            break; // TODO: revisar si es necesario el break o puedo añadir otra condición de corte mejor
                         }
                         visitados.insertar(elemAdy, visitados.longitud() + 1);
                         colaCaminos.poner(nuevoCamino);
@@ -441,27 +442,32 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      *
      * Devuelve Lista vacía si no hay camino o algún vértice no existe.
      */
-    public Lista caminoMenosMinutos(T origen, T destino) {
+    public Lista caminoMenosMinutos(T origen, T destino) { // camino más liviano
         Lista mejorCamino = new Lista();
         NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
         NodoVert<T, E> nDestino = this.ubicarVertice(destino);
         if (nOrigen != null && nDestino != null) {
             Lista caminoActual = new Lista();
             caminoActual.insertar(origen, 1);
-            int[] menosMinutos = {Integer.MAX_VALUE};
+            int[] menosMinutos = {Integer.MAX_VALUE}; // puede representar tiempo/longitud/etc
             this.caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
         }
         return mejorCamino;
     }
 
+    // TODO: practicar bastante este recorrido DFS
+
     private void caminoMenosMinutosAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
             int minutosAcum, int[] menosMinutos, Lista mejorCamino) {
         if (actual.getElem().equals(destino)) {
-            if (minutosAcum < menosMinutos[0]) {
+            if (minutosAcum < menosMinutos[0]) { // Probar si es necesaria la comprobación
                 menosMinutos[0] = minutosAcum;
                 mejorCamino.vaciar();
-                for (int i = 1; i <= caminoActual.longitud(); i++) {
-                    mejorCamino.insertar(caminoActual.recuperar(i), i);
+                for (int i = 1; i <= caminoActual.longitud(); i++) { // O(n2)
+                    // si uso clone() mejoro eficiencia pero debo retornar el mejorCamino
+                    mejorCamino.insertar(caminoActual.recuperar(i), i); // 3n2
+                    // mejorCamino.copiar(caminoActual); // dentro clona caminoActual y le asigna la cabecera a mejorCamino
+                    // Idea: un clone() custom para TDA Lista y eso evita tener que retornar
                 }
             }
         } else {
@@ -471,6 +477,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                 int tiempoAdy = (Integer) ady.getEtiqueta();
                 int nuevoTiempo = minutosAcum + tiempoAdy;
                 if (caminoActual.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) {
+                    // Testear
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
                     this.caminoMenosMinutosAux(ady.getVertice(), destino, caminoActual, nuevoTiempo,
                             menosMinutos, mejorCamino);
@@ -480,6 +487,8 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
             }
         }
     }
+
+    // TODO: probar implementar camino menos escalas con DFS
 
     //  TPO consigna 6.c (*) — MENOR TIEMPO SIN PASAR POR CIUDAD C
 
@@ -517,7 +526,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     private void caminoMenosMinutosSinPasarAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
             Lista bloqueados, int minutosAcum, int[] menosMinutos, Lista mejorCamino) {
+        System.out.println("Camino actual: " + caminoActual.toString()); // ! para testing
         if (actual.getElem().equals(destino)) {
+            System.out.println("Llegué al destino");
+            System.out.println("minutos acumulados: " + minutosAcum);
+            System.out.println("menos minutos: " + menosMinutos[0]);
             if (minutosAcum < menosMinutos[0]) {
                 menosMinutos[0] = minutosAcum;
                 mejorCamino.vaciar();
@@ -532,7 +545,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                 int tiempoAdy = (Integer) ady.getEtiqueta();
                 int nuevoTiempo = minutosAcum + tiempoAdy;
                 // Chequeo sobre 'bloqueados', no sobre 'caminoActual'
-                if (bloqueados.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) {
+                if (bloqueados.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) { // si consulto el evitar sin otra lista puedo hacer !elemAdy.equals(evitar)
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
                     bloqueados.insertar(elemAdy, bloqueados.longitud() + 1);
                     this.caminoMenosMinutosSinPasarAux(ady.getVertice(), destino, caminoActual,

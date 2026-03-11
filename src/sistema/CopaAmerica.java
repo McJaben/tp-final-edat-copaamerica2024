@@ -487,7 +487,10 @@ public class CopaAmerica {
             resultado = new Lista();
             for (int i = 1; i <= caminos.longitud(); i++) {
                 Lista camino = (Lista) caminos.recuperar(i);
+                // TODO: recuperar lista de primera posición y luego eliminarla
+
                 if (camino != null && tieneAlojamientoEnCamino(camino)) {
+                    // insertar al principio porque es O(1)
                     resultado.insertar(camino, resultado.longitud() + 1);
                 }
             }
@@ -538,7 +541,7 @@ public class CopaAmerica {
 
         // Carga de datos en el Heap
         for (int i = 1; i <= listaOriginal.longitud(); i++) {
-            Equipo e = (Equipo) listaOriginal.recuperar(i);
+            Equipo e = (Equipo) listaOriginal.recuperar(i); // TODO: podría eliminarlo en lugar de sólo recuperar
             // El heap utiliza EquipoPorGoles para decidir la prioridad
             heap.insertar(new EquipoPorGoles(e));
         }
