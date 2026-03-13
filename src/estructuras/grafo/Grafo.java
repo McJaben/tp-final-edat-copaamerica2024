@@ -464,15 +464,15 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
             if (minutosAcum < menosPeso[0]) { // Probar si es necesaria la comprobación
                 menosPeso[0] = minutosAcum;
                 // clone() es O(n) y evita el for de copia que era O(n) con longitud() O(n) adentro = O(n²)
-                Lista copia = caminoActual.clone();
-                // TODO: implementar clonarDesde() para mejorar la eficiencia
-                mejorCamino.vaciar();
-                for (int i = 1; i <= caminoActual.longitud(); i++) { // O(n2)
-                    // si uso clone() mejoro eficiencia pero debo retornar el mejorCamino
-                    mejorCamino.insertar(caminoActual.recuperar(i), i); // 3n2
-                    // mejorCamino.copiar(caminoActual); // TODO: dentro podría clonar caminoActual y le asigna la cabecera a mejorCamino
-                    // TODO: Idea: un clone() custom para TDA Lista y eso evita tener que retornar
-                }
+                mejorCamino.copiarDesde(caminoActual);
+                // El for con recuperar(i) era cuadrático porque recorres desde la cabecera hasta
+                // pos i en cada iteración
+                // for (int i = 1; i <= caminoActual.longitud(); i++) { // O(n2)
+                //     // si uso clone() mejoro eficiencia pero debo retornar el mejorCamino
+                //     mejorCamino.insertar(caminoActual.recuperar(i), i); // 3n2
+                //     // mejorCamino.copiar(caminoActual); // TODO: dentro podría clonar caminoActual y le asigna la cabecera a mejorCamino
+                //     // TODO: Idea: un clone() custom para TDA Lista y eso evita tener que retornar
+                // }
             }
         } else {
             NodoAdy<T, E> ady = actual.getPrimerAdy();
@@ -531,17 +531,10 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     private void caminoMasLivianoSinPasarAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
             Lista bloqueados, int minutosAcum, int[] menosPeso, Lista mejorCamino) {
-        System.out.println("Camino actual: " + caminoActual.toString()); // ! para testing
         if (actual.getElem().equals(destino)) {
-            System.out.println("Llegué al destino");
-            System.out.println("minutos acumulados: " + minutosAcum);
-            System.out.println("menos minutos: " + menosPeso[0]);
             if (minutosAcum < menosPeso[0]) {
                 menosPeso[0] = minutosAcum;
-                mejorCamino.vaciar();
-                for (int i = 1; i <= caminoActual.longitud(); i++) {
-                    mejorCamino.insertar(caminoActual.recuperar(i), i);
-                }
+                mejorCamino.copiarDesde(caminoActual);
             }
         } else {
             NodoAdy<T, E> ady = actual.getPrimerAdy();

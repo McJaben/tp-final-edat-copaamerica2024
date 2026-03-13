@@ -170,6 +170,37 @@ public class Lista {
     }
 
     /**
+     * Reemplaza el contenido de esta lista con una copia del contenido de 'origen', recorriendo
+     * ambas listas nodo a nodo en una única pasada: O(n).
+     *  
+     * Uso principal: lograr actualizar mejorCamino en los algoritmos DFS de grafos sin tener que
+     * incurrir en costo O(n²) al utilizar vaciar() + un for con insertar(longitud()+1) y recuperar(i)
+     *
+     * @param origen la lista cuyo contenido se copiará en esta lista
+     */
+    public void copiarDesde(Lista origen) {
+        this.cabecera = null; // vaciamos sin llamar a vaciar() para no recorrer dos veces
+
+        if (origen != null && !origen.esVacia()) {
+            Nodo auxOrigen = origen.cabecera;
+
+            // Crear el primer nodo y fijar la cabecera
+            Nodo nuevo = new Nodo(auxOrigen.getElem(), null);
+            this.cabecera = nuevo;
+            Nodo ultimo = nuevo;
+            auxOrigen = auxOrigen.getEnlace();
+
+            // Recorrer el resto de origen, enlazando nodos uno a uno
+            while (auxOrigen != null) {
+                nuevo = new Nodo(auxOrigen.getElem(), null);
+                ultimo.setEnlace(nuevo);
+                ultimo = nuevo;
+                auxOrigen = auxOrigen.getEnlace();
+            }
+        }
+    }
+
+    /**
      * Returns the quantity of elements in the list.
      */
     public int longitud() {
