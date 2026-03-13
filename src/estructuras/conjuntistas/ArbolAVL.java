@@ -269,26 +269,17 @@ public class ArbolAVL<T extends Comparable<T>> {
                 // Buscar en izquierda
                 res = eliminarAux(n.getIzquierdo(), elem);
                 n.setIzquierdo(res.nodo);
-
-                // A la vuelta: balancear si hubo eliminación
-                if (res.exito) {
-                    res.nodo = balancear(n);
-                } else {
-                    res.nodo = n;
-                }
-
             } else {
                 // Buscar en derecha
                 res = eliminarAux(n.getDerecho(), elem);
                 n.setDerecho(res.nodo);
-                // A la vuelta: balancear si hubo eliminación
-                if (res.exito) {
-                    res.nodo = balancear(n);
-                } else {
-                    res.nodo = n;
-                }
             }
-            // TODO: sacar exito acá
+            // A la vuelta: balancear si hubo eliminación
+            if (res.exito) {
+                res.nodo = balancear(n);
+            } else {
+                res.nodo = n;
+            }
         }
 
         return res;
