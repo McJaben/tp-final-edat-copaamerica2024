@@ -416,7 +416,7 @@ public class CopaAmerica {
         Ciudad c1 = obtenerCiudad(origen);
         Ciudad c2 = obtenerCiudad(destino);
         if (c1 != null && c2 != null) {
-            lis = mapaCiudades.caminoMenosEscalas(c1, c2);
+            lis = mapaCiudades.caminoMenosVertices(c1, c2);
         }
         return lis;
     }
@@ -428,7 +428,7 @@ public class CopaAmerica {
         Ciudad c1 = obtenerCiudad(origen);
         Ciudad c2 = obtenerCiudad(destino);
         if (c1 != null && c2 != null) {
-            lis = mapaCiudades.caminoMenosMinutos(c1, c2);
+            lis = mapaCiudades.caminoMasLiviano(c1, c2);
         }
         return lis;
     }
@@ -450,7 +450,7 @@ public class CopaAmerica {
         Ciudad c2 = obtenerCiudad(destino);
         Ciudad cEvitar = obtenerCiudad(evitar);
         if (c1 != null && c2 != null && cEvitar != null) {
-            lis = mapaCiudades.caminoMenosMinutosSinPasar(c1, c2, cEvitar);
+            lis = mapaCiudades.caminoMasLivianoSinPasar(c1, c2, cEvitar);
         }
         return lis;
     }
@@ -485,12 +485,12 @@ public class CopaAmerica {
         Lista resultado = null;
         if (caminos != null) {
             resultado = new Lista();
-            for (int i = 1; i <= caminos.longitud(); i++) {
-                Lista camino = (Lista) caminos.recuperar(i);
-                // TODO: recuperar lista de primera posición y luego eliminarla
-
+            // Consumir desde posición 1 para que recuperar(1) y eliminar(1) sean O(1)
+            while (!caminos.esVacia()) {
+                Lista camino = (Lista) caminos.recuperar(1);
+                caminos.eliminar(1);
                 if (camino != null && tieneAlojamientoEnCamino(camino)) {
-                    // insertar al principio porque es O(1)
+                    // TODO: analizar si conviene insertar en cabecera para ver si es orden O(1)
                     resultado.insertar(camino, resultado.longitud() + 1);
                 }
             }

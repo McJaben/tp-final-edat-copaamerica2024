@@ -425,25 +425,25 @@ public class Menu {
                         }
 
                         // Filtrar por alojamiento
-                        Lista filtrados = copa.filtrarCaminosConAlojamiento(todos);
+                        Lista conAlojamiento = copa.filtrarCaminosConAlojamiento(todos);
 
                         // Formatear caminos con alojamiento
-                        String contenidoFiltrados = copa.formatearCaminosParaArchivo(filtrados,
+                        String contenidoConAlojamiento = copa.formatearCaminosParaArchivo(conAlojamiento,
                                 "CAMINOS CON ALOJAMIENTO DE " + origen + " A " + destino
-                                        + " (Total: " + filtrados.longitud() + " de "
+                                        + " (Total: " + conAlojamiento.longitud() + " de "
                                         + todos.longitud() + ")");
 
                         // Guardar archivo de caminos filtrados
-                        if (guardarEnArchivo(contenidoFiltrados, "ALOJAMIENTO_" + nombreArchivo)) {
+                        if (guardarEnArchivo(contenidoConAlojamiento, "ALOJAMIENTO_" + nombreArchivo)) {
                             System.out.println("✓ Archivo guardado: ALOJAMIENTO_" + nombreArchivo);
                         }
 
                         // Mostrar solo un resumen en pantalla
                         System.out.println("\n=== RESUMEN ===");
                         System.out.println("Total de caminos encontrados: " + todos.longitud());
-                        System.out.println("Caminos con alojamiento: " + filtrados.longitud());
+                        System.out.println("Caminos con alojamiento: " + conAlojamiento.longitud());
                         System.out.println("Caminos sin alojamiento: "
-                                + (todos.longitud() - filtrados.longitud()));
+                                + (todos.longitud() - conAlojamiento.longitud()));
                         System.out.println("\nLos detalles completos se guardaron en:");
                         System.out.println("  - TODOS_" + nombreArchivo);
                         System.out.println("  - ALOJAMIENTO_" + nombreArchivo);

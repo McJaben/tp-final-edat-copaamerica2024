@@ -52,9 +52,9 @@ import estructuras.lineales.Cola;
  * 
  * Caminos:
  *  existeCamino(T origen, T destino)               → boolean
- *  caminoMenosEscalas(T origen, T destino)         → Lista  [mínima cantidad de ciudades]
- *  caminoMenosMinutos(T origen, T destino)         → Lista  [menor tiempo de vuelo]
- *  caminoMenosMinutosSinPasar(T, T, T evitar)      → Lista  [(*) sin pasar por ciudad C]
+ *  caminoMenosVertices(T origen, T destino)         → Lista  [mínima cantidad de ciudades]
+ *  caminoMasLiviano(T origen, T destino)         → Lista  [menor tiempo de vuelo]
+ *  caminoMasLivianoSinPasar(T, T, T evitar)      → Lista  [(*) sin pasar por ciudad C]
  *  todosLosCaminos(T origen, T destino)            → Lista  [(*) todos los caminos]
  *
  * Debug:
@@ -129,31 +129,31 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     //  Operaciones básicas
 
     /**
-     * Inserta 'ciudad' como nuevo vértice si no existe ya uno igual.
+     * Inserta 'elem' como nuevo vértice si no existe ya uno igual.
      * 
-     * @param ciudad el elemento a insertar en el vértice
+     * @param elem el elemento a insertar en el vértice
      * @return true si se insertó correctamente, false si ya existía un vértice igual
      */
-    public boolean insertarVertice(T ciudad) {
+    public boolean insertarVertice(T elem) {
         boolean exito = false;
-        if (this.ubicarVertice(ciudad) == null) {
-            this.inicio = new NodoVert<>(ciudad, this.inicio);
+        if (this.ubicarVertice(elem) == null) {
+            this.inicio = new NodoVert<>(elem, this.inicio);
             exito = true;
         }
         return exito;
     }
 
     /**
-     * Elimina el vértice igual a 'ciudad' y todos los arcos que lo involucran.
-     * Paso 1: recorre todos los demás vértices y les quita el arco hacia 'ciudad'.
+     * Elimina el vértice igual a 'elem' y todos los arcos que lo involucran.
+     * Paso 1: recorre todos los demás vértices y les quita el arco hacia 'elem'.
      * Paso 2: desconecta el propio NodoVert de la lista de vértices.
-     * @param ciudad el elemento del vértice a eliminar
+     * @param elem el elemento del vértice a eliminar
      * @return true si se eliminó correctamente, false si no existía el vértice
      */
-    public boolean eliminarVertice(T ciudad) {
+    public boolean eliminarVertice(T elem) {
         // TODO: mejorar eficiencia del recorrido
         boolean exito = false;
-        NodoVert<T, E> aBorrar = this.ubicarVertice(ciudad);
+        NodoVert<T, E> aBorrar = this.ubicarVertice(elem);
         if (aBorrar != null) {
             // Paso 1 — eliminar arcos entrantes desde el resto de vértices
             NodoVert<T, E> aux = this.inicio;
@@ -181,21 +181,20 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     }
 
     /**
-     * Devuelve true si existe un vértice con elem igual a 'ciudad'.
-     * @param ciudad el elemento a buscar en los vértices
+     * Devuelve true si existe un vértice con elem igual a 'elem'.
+     * @param elem el elemento a buscar en los vértices
      * @return true si existe el vértice, false en caso contrario.
      */
-    public boolean existeVertice(T ciudad) {
-        return this.ubicarVertice(ciudad) != null;
+    public boolean existeVertice(T elem) {
+        return this.ubicarVertice(elem) != null;
     }
 
     /**
      * Inserta un arco NO dirigido entre origen y destino con la etiqueta dada. Crea A→B y B→A con
-     * la misma etiqueta. Se evita que se inserten arcos duplicados, dado que el dominio menciona
-     * más aerolíneas, tipos de vuelo o frecuencias entre las mismas ciudades.
+     * la misma etiqueta.
      * 
-     * @param origen ciudad de origen del arco
-     * @param destino ciudad de destino del arco
+     * @param origen elem de origen del arco
+     * @param destino elem de destino del arco
      * @param etiqueta tiempo de vuelo directo en minutos (debe ser >= 0)
      * @return true si se insertó correctamente, false si no existen los vértices o si ya existía el
      *         arco
@@ -214,8 +213,8 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
 
     /**
      * Elimina el arco entre origen y destino (en ambas direcciones).
-     * @param origen nombre de la ciudad de origen del arco a eliminar
-     * @param destino nombre de la ciudad de destino del arco a eliminar
+     * @param origen nombre de la elem de origen del arco a eliminar
+     * @param destino nombre de la elem de destino del arco a eliminar
      * @return true si se eliminó, false en caso contrario
      */
     public boolean eliminarArco(T origen, T destino) {
@@ -253,15 +252,15 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     }
 
     /**
-     * Devuelve el objeto T almacenado en el vértice igual a 'ciudad'. Útil para modificar atributos
-     * de Ciudad (alojamiento, esSede) sin eliminar y reinsertar el vértice. Devuelve null si no
+     * Devuelve el objeto T almacenado en el vértice igual a 'elem'. Útil para modificar atributos
+     * de elem (alojamiento, esSede) sin eliminar y reinsertar el vértice. Devuelve null si no
      * existe el vértice.
-     * @param ciudad la ciudad a obtener
+     * @param elem la elem a obtener
      * @return objeto T almacenado en el vértice
      */
-    public T getVertice(T ciudad) {
+    public T getVertice(T elem) {
         T resultado = null;
-        NodoVert<T, E> nodo = this.ubicarVertice(ciudad);
+        NodoVert<T, E> nodo = this.ubicarVertice(elem);
         if (nodo != null) {
             resultado = nodo.getElem();
         }
@@ -371,7 +370,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
     //  TPO consigna 6.a — CAMINO CON MENOS ESCALAS (BFS)
 
     /**
-     * Devuelve el camino de A a B que pasa por la mínima cantidad de ciudades.
+     * Devuelve el camino de A a B que pasa por la mínima cantidad de vértices.
      *
      * Algoritmo: BFS — el primer camino completo encontrado en BFS es el de menos saltos, por la
      * propiedad de exploración nivel a nivel.
@@ -381,10 +380,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      *
      * Devuelve Lista vacía si algún vértice no existe o no hay camino.
      */
-    public Lista caminoMenosEscalas(T origen, T destino) { // CaminoMenosVertices
+    public Lista caminoMenosVertices(T origen, T destino) {
         Lista resultado = new Lista();
         NodoVert<T, E> nOrigen = ubicarVertice(origen);
         NodoVert<T, E> nDestino = ubicarVertice(destino);
+        
         if (nOrigen != null && nDestino != null) {
             Lista visitados = new Lista();
             visitados.insertar(origen, 1);
@@ -399,24 +399,25 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                 Lista caminoActual = (Lista) colaCaminos.obtenerFrente();
                 colaCaminos.sacar();
 
-                // Último elemento del camino parcial = ciudad actual
+                int longCamino = caminoActual.longitud(); // evitar llamadas repetidas
+                // Último elemento del camino parcial = vértice actual
                 @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy
                                                // encolando objetos T (Ciudad en TPO)
-                T ultimoElem = (T) caminoActual.recuperar(caminoActual.longitud());
+                T ultimoElem = (T) caminoActual.recuperar(longCamino);
                 NodoVert<T, E> nActual = this.ubicarVertice(ultimoElem);
 
                 NodoAdy<T, E> ady = nActual.getPrimerAdy();
-                while (ady != null) {
+                while (ady != null && resultado.esVacia()) {
                     T elemAdy = ady.getVertice().getElem();
                     if (visitados.localizar(elemAdy) < 0) {
                         Lista nuevoCamino = caminoActual.clone();
                         nuevoCamino.insertar(elemAdy, nuevoCamino.longitud() + 1);
                         if (elemAdy.equals(destino)) {
                             resultado = nuevoCamino; // primer camino completo en BFS
-                            break; // TODO: revisar si es necesario el break o puedo añadir otra condición de corte mejor
+                        } else {
+                            visitados.insertar(elemAdy, visitados.longitud() + 1);
+                            colaCaminos.poner(nuevoCamino);
                         }
-                        visitados.insertar(elemAdy, visitados.longitud() + 1);
-                        colaCaminos.poner(nuevoCamino);
                     }
                     ady = ady.getSigAdyacente();
                 }
@@ -434,7 +435,7 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      *
      * Algoritmo: DFS con backtracking.
      *   - 'caminoActual' crece al avanzar y se recorta al retroceder.
-     *   - 'menosMinutos[0]' es la referencia mutable al mejor tiempo hallado.
+     *   - 'menosPeso[0]' es la referencia mutable al mejor tiempo hallado.
      *   - Poda: si el tiempo acumulado ya iguala o supera el mejor conocido,
      *     no se sigue explorando esa rama.
      *
@@ -442,32 +443,35 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      *
      * Devuelve Lista vacía si no hay camino o algún vértice no existe.
      */
-    public Lista caminoMenosMinutos(T origen, T destino) { // camino más liviano
+    public Lista caminoMasLiviano(T origen, T destino) { // camino más liviano
         Lista mejorCamino = new Lista();
         NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
         NodoVert<T, E> nDestino = this.ubicarVertice(destino);
         if (nOrigen != null && nDestino != null) {
             Lista caminoActual = new Lista();
             caminoActual.insertar(origen, 1);
-            int[] menosMinutos = {Integer.MAX_VALUE}; // puede representar tiempo/longitud/etc
-            this.caminoMenosMinutosAux(nOrigen, destino, caminoActual, 0, menosMinutos, mejorCamino);
+            int[] menosPeso = {Integer.MAX_VALUE}; // puede representar tiempo/longitud/etc
+            this.caminoMasLivianoAux(nOrigen, destino, caminoActual, 0, menosPeso, mejorCamino);
         }
         return mejorCamino;
     }
 
     // TODO: practicar bastante este recorrido DFS
 
-    private void caminoMenosMinutosAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
-            int minutosAcum, int[] menosMinutos, Lista mejorCamino) {
+    private void caminoMasLivianoAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+            int minutosAcum, int[] menosPeso, Lista mejorCamino) {
         if (actual.getElem().equals(destino)) {
-            if (minutosAcum < menosMinutos[0]) { // Probar si es necesaria la comprobación
-                menosMinutos[0] = minutosAcum;
+            if (minutosAcum < menosPeso[0]) { // Probar si es necesaria la comprobación
+                menosPeso[0] = minutosAcum;
+                // clone() es O(n) y evita el for de copia que era O(n) con longitud() O(n) adentro = O(n²)
+                Lista copia = caminoActual.clone();
+                // TODO: implementar clonarDesde() para mejorar la eficiencia
                 mejorCamino.vaciar();
                 for (int i = 1; i <= caminoActual.longitud(); i++) { // O(n2)
                     // si uso clone() mejoro eficiencia pero debo retornar el mejorCamino
                     mejorCamino.insertar(caminoActual.recuperar(i), i); // 3n2
-                    // mejorCamino.copiar(caminoActual); // dentro clona caminoActual y le asigna la cabecera a mejorCamino
-                    // Idea: un clone() custom para TDA Lista y eso evita tener que retornar
+                    // mejorCamino.copiar(caminoActual); // TODO: dentro podría clonar caminoActual y le asigna la cabecera a mejorCamino
+                    // TODO: Idea: un clone() custom para TDA Lista y eso evita tener que retornar
                 }
             }
         } else {
@@ -476,11 +480,12 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                 T elemAdy = ady.getVertice().getElem();
                 int tiempoAdy = (Integer) ady.getEtiqueta();
                 int nuevoTiempo = minutosAcum + tiempoAdy;
-                if (caminoActual.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) {
+                // localizar() sobre caminoActual es O(n): aceptable para evitar ciclos en DFS
+                if (caminoActual.localizar(elemAdy) < 0 && nuevoTiempo < menosPeso[0]) {
                     // Testear
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
-                    this.caminoMenosMinutosAux(ady.getVertice(), destino, caminoActual, nuevoTiempo,
-                            menosMinutos, mejorCamino);
+                    this.caminoMasLivianoAux(ady.getVertice(), destino, caminoActual, nuevoTiempo,
+                            menosPeso, mejorCamino);
                     caminoActual.eliminar(caminoActual.longitud()); // backtracking
                 }
                 ady = ady.getSigAdyacente();
@@ -488,22 +493,22 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         }
     }
 
-    // TODO: probar implementar camino menos escalas con DFS
+    // TODO: probar implementar camino menos escalas con DFS en lugar de recorrido en anchura
 
-    //  TPO consigna 6.c (*) — MENOR TIEMPO SIN PASAR POR CIUDAD C
+    //  TPO consigna 6.c (*) — MENOR TIEMPO SIN PASAR POR VÉRTICE C
 
     /**
-     * (*) Camino de menor tiempo de A a B que no pase por la ciudad C.
+     * (*) Camino de menor tiempo de A a B que no pase por la vértice C.
      *
-     * Estrategia: se pre-inserta 'ciudadEvitar' en caminoActual antes de
+     * Estrategia: se pre-inserta 'verticeEvitar' en caminoActual antes de
      * comenzar el DFS. El auxiliar nunca agrega un nodo ya presente en
      * caminoActual, por lo que C queda efectivamente bloqueado.
-     * El mejorCamino resultante nunca contiene a ciudadEvitar.
+     * El mejorCamino resultante nunca contiene a verticeEvitar.
      *
      * Devuelve Lista vacía si no hay camino que evite C,
      * o si algún vértice no existe.
      */
-    public Lista caminoMenosMinutosSinPasar(T origen, T destino, T ciudadEvitar) {
+    public Lista caminoMasLivianoSinPasar(T origen, T destino, T verticeEvitar) {
         Lista mejorCamino = new Lista();
         NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
         NodoVert<T, E> nDestino = this.ubicarVertice(destino);
@@ -512,27 +517,27 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
             caminoActual.insertar(origen, 1);
 
             // Lista de bloqueados SEPARADA: solo se usa para el chequeo de visita,
-            // nunca se copia al resultado. Contiene origen + la ciudad a evitar.
+            // nunca se copia al resultado. Contiene origen + el vértice a evitar.
             Lista bloqueados = new Lista();
             bloqueados.insertar(origen, 1);
-            bloqueados.insertar(ciudadEvitar, 2);
+            bloqueados.insertar(verticeEvitar, 2);
 
-            int[] menosMinutos = {Integer.MAX_VALUE};
-            this.caminoMenosMinutosSinPasarAux(nOrigen, destino, caminoActual, bloqueados, 0,
-                    menosMinutos, mejorCamino);
+            int[] menosPeso = {Integer.MAX_VALUE};
+            this.caminoMasLivianoSinPasarAux(nOrigen, destino, caminoActual, bloqueados, 0,
+                    menosPeso, mejorCamino);
         }
         return mejorCamino;
     }
 
-    private void caminoMenosMinutosSinPasarAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
-            Lista bloqueados, int minutosAcum, int[] menosMinutos, Lista mejorCamino) {
+    private void caminoMasLivianoSinPasarAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+            Lista bloqueados, int minutosAcum, int[] menosPeso, Lista mejorCamino) {
         System.out.println("Camino actual: " + caminoActual.toString()); // ! para testing
         if (actual.getElem().equals(destino)) {
             System.out.println("Llegué al destino");
             System.out.println("minutos acumulados: " + minutosAcum);
-            System.out.println("menos minutos: " + menosMinutos[0]);
-            if (minutosAcum < menosMinutos[0]) {
-                menosMinutos[0] = minutosAcum;
+            System.out.println("menos minutos: " + menosPeso[0]);
+            if (minutosAcum < menosPeso[0]) {
+                menosPeso[0] = minutosAcum;
                 mejorCamino.vaciar();
                 for (int i = 1; i <= caminoActual.longitud(); i++) {
                     mejorCamino.insertar(caminoActual.recuperar(i), i);
@@ -545,11 +550,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
                 int tiempoAdy = (Integer) ady.getEtiqueta();
                 int nuevoTiempo = minutosAcum + tiempoAdy;
                 // Chequeo sobre 'bloqueados', no sobre 'caminoActual'
-                if (bloqueados.localizar(elemAdy) < 0 && nuevoTiempo < menosMinutos[0]) { // si consulto el evitar sin otra lista puedo hacer !elemAdy.equals(evitar)
+                if (bloqueados.localizar(elemAdy) < 0 && nuevoTiempo < menosPeso[0]) { // si consulto el evitar sin otra lista puedo hacer !elemAdy.equals(evitar)
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
                     bloqueados.insertar(elemAdy, bloqueados.longitud() + 1);
-                    this.caminoMenosMinutosSinPasarAux(ady.getVertice(), destino, caminoActual,
-                            bloqueados, nuevoTiempo, menosMinutos, mejorCamino);
+                    this.caminoMasLivianoSinPasarAux(ady.getVertice(), destino, caminoActual,
+                            bloqueados, nuevoTiempo, menosPeso, mejorCamino);
                     // Backtracking en ambas listas
                     caminoActual.eliminar(caminoActual.longitud());
                     bloqueados.eliminar(bloqueados.longitud());
