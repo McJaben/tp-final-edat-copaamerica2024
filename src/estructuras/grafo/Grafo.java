@@ -427,6 +427,7 @@ public class Grafo<T, E> {
     }
 
     //  TPO consigna 6.a — CAMINO CON MENOS ESCALAS (BFS) (menos vértices)
+    // TODO: probar implementar camino menos escalas con DFS en lugar de recorrido en anchura
 
     /**
      * Devuelve el camino de A a B que pasa por la mínima cantidad de vértices.
@@ -526,14 +527,13 @@ public class Grafo<T, E> {
             while (ady != null) {
                 T elemAdy = ady.getVertice().getElem();
                 int pesoAdy = (Integer) ady.getEtiqueta();
-                int nuevoPeso = pesoAcum + pesoAdy;
-                // localizar() sobre caminoActual es O(n): aceptable para evitar ciclos en DFS
-                // la comparación del nuevoPeso con menosPeso[0] es una poda que garantiza que
-                // sólo se exploren caminos que pueden mejorar el mejorCamino hasta ahora
-                if (caminoActual.localizar(elemAdy) < 0 && nuevoPeso < menosPeso[0]) {
-                    // Testear
+                // Orden de condiciones deliberado: de menor a mayor costo.
+                // 1. Poda de peso: O(1). Descarta ramas que no pueden mejorar el mejor camino.
+                // Si falla, se evita pagar el costo de localizar().
+                // 2. localizar() sobre caminoActual para evitar ciclos: O(n).
+                if ((pesoAcum + pesoAdy) < menosPeso[0] && caminoActual.localizar(elemAdy) < 0) {
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
-                    this.caminoMasLivianoAux(ady.getVertice(), destino, caminoActual, nuevoPeso,
+                    this.caminoMasLivianoAux(ady.getVertice(), destino, caminoActual, (pesoAcum + pesoAdy),
                             menosPeso, mejorCamino);
                     caminoActual.eliminar(caminoActual.longitud()); // backtracking
                 }
@@ -542,20 +542,11 @@ public class Grafo<T, E> {
         }
     }
 
-    // TODO: probar implementar camino menos escalas con DFS en lugar de recorrido en anchura
-
     //  TPO consigna 6.c (*) — MENOR TIEMPO SIN PASAR POR VÉRTICE C
-
     /**
-     * (*) Camino de menor tiempo de A a B que no pase por la vértice C.
+     ** Camino de menor tiempo de A a B que no pase por el vértice C.
      *
-     * Estrategia: se pre-inserta 'verticeEvitar' en caminoActual antes de
-     * comenzar el DFS. El auxiliar nunca agrega un nodo ya presente en
-     * caminoActual, por lo que C queda efectivamente bloqueado.
-     * El mejorCamino resultante nunca contiene a verticeEvitar.
-     *
-     * Devuelve Lista vacía si no hay camino que evite C,
-     * o si algún vértice no existe.
+     * Devuelve Lista vacía si no hay camino que evite C, o si algún vértice no existe.
      */
     public Lista caminoMasLivianoSinPasar(T origen, T destino, T verticeEvitar) {
         Lista mejorCamino = new Lista();
@@ -564,42 +555,36 @@ public class Grafo<T, E> {
         if (nOrigen != null && nDestino != null) {
             Lista caminoActual = new Lista();
             caminoActual.insertar(origen, 1);
-
-            // Lista de bloqueados SEPARADA: solo se usa para el chequeo de visita,
-            // nunca se copia al resultado. Contiene origen + el vértice a evitar.
-            Lista bloqueados = new Lista();
-            bloqueados.insertar(origen, 1);
-            bloqueados.insertar(verticeEvitar, 2);
-
             int[] menosPeso = {Integer.MAX_VALUE};
-            this.caminoMasLivianoSinPasarAux(nOrigen, nDestino, caminoActual, bloqueados, 0,
-                    menosPeso, mejorCamino);
+            this.caminoMasLivianoSinPasarAux(nOrigen, nDestino, caminoActual, 0, menosPeso,
+                    mejorCamino, verticeEvitar);
         }
         return mejorCamino;
     }
 
-    private void caminoMasLivianoSinPasarAux(NodoVert<T, E> actual, NodoVert<T, E> destino, Lista caminoActual,
-            Lista bloqueados, int minutosAcum, int[] menosPeso, Lista mejorCamino) {
+    private void caminoMasLivianoSinPasarAux(NodoVert<T, E> actual, NodoVert<T, E> destino,
+            Lista caminoActual, int pesoAcum, int[] menosPeso, Lista mejorCamino, T verticeEvitar) {
         if (actual == destino) {
-            if (minutosAcum < menosPeso[0]) {
-                menosPeso[0] = minutosAcum;
-                mejorCamino.copiarDesde(caminoActual);
-            }
+            // La poda antes del llamado recursivo asegura que al llegar acá, pesoAcum es
+            // menor a menosPeso[0], por lo que la comparación es redundante y se omite.
+            menosPeso[0] = pesoAcum;
+            mejorCamino.copiarDesde(caminoActual); // O(n), sin usar una lista auxiliar
         } else {
             NodoAdy<T, E> ady = actual.getPrimerAdy();
             while (ady != null) {
                 T elemAdy = ady.getVertice().getElem();
-                int tiempoAdy = (Integer) ady.getEtiqueta();
-                int nuevoTiempo = minutosAcum + tiempoAdy;
-                // Chequeo sobre 'bloqueados', no sobre 'caminoActual'
-                if (bloqueados.localizar(elemAdy) < 0 && nuevoTiempo < menosPeso[0]) { // si consulto el evitar sin otra lista puedo hacer !elemAdy.equals(evitar)
+                int pesoAdy = (Integer) ady.getEtiqueta();
+                // Orden de condiciones deliberado: de menor a mayor costo.
+                // 1. Descarte directo del vértice a evitar: O(1).
+                // 2. Poda de peso: O(1). Descarta ramas que no pueden mejorar el mejor camino.
+                // Si alguna de las dos anteriores falla, se evita pagar el costo de localizar().
+                // 3. localizar() sobre caminoActual para evitar ciclos: O(n).
+                if (!elemAdy.equals(verticeEvitar) && (pesoAcum + pesoAdy) < menosPeso[0]
+                        && caminoActual.localizar(elemAdy) < 0) {
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
-                    bloqueados.insertar(elemAdy, bloqueados.longitud() + 1);
                     this.caminoMasLivianoSinPasarAux(ady.getVertice(), destino, caminoActual,
-                            bloqueados, nuevoTiempo, menosPeso, mejorCamino);
-                    // Backtracking en ambas listas
-                    caminoActual.eliminar(caminoActual.longitud());
-                    bloqueados.eliminar(bloqueados.longitud());
+                            pesoAcum + pesoAdy, menosPeso, mejorCamino, verticeEvitar);
+                    caminoActual.eliminar(caminoActual.longitud()); // backtracking
                 }
                 ady = ady.getSigAdyacente();
             }
