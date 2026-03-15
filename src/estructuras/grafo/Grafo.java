@@ -93,10 +93,10 @@ public class Grafo<T, E> {
      */
     private void enlazarAdyacente(NodoVert<T, E> origen, NodoVert<T, E> destino, E etiqueta) {
         NodoAdy<T, E> nuevo = new NodoAdy<>(destino, etiqueta);
-        if (origen.getPrimerAdy() == null) {
+        NodoAdy<T, E> aux = origen.getPrimerAdy();
+        if (aux == null) {
             origen.setPrimerAdy(nuevo);
         } else {
-            NodoAdy<T, E> aux = origen.getPrimerAdy();
             while (aux.getSigAdyacente() != null) {
                 aux = aux.getSigAdyacente();
             }
@@ -111,16 +111,15 @@ public class Grafo<T, E> {
     private void desenlazarAdyacente(NodoVert<T, E> origen, NodoVert<T, E> destino) {
         NodoAdy<T, E> actual = origen.getPrimerAdy();
         NodoAdy<T, E> anterior = null;
-        // la comparación por referencia es intencional: el NodoVert destino viene siempre
-        // y es una referencia exacta al nodo del grafo (puntero).
-        while (actual != null && !actual.getVertice().equals(destino)) {
+        // Se compara por referencia, dado que los NodoVert entrantes son el puntero exacto al nodo
+        // en el grafo, no una copia. Esto es O(1) por comparación en lugar de invocar equals().
+        while (actual != null && actual.getVertice() != destino) {
             anterior = actual;
             actual = actual.getSigAdyacente();
         }
-        // TODO: probablemente pueda desenlazar el arco en sentido inverso desde acá, usando la
-        // referencia (enlace) del nodo destino
         if (actual != null) {
             if (anterior == null) {
+                // actual no nulo y anterior nulo: el destino es el primer adyacente del origen
                 origen.setPrimerAdy(actual.getSigAdyacente());
             } else {
                 anterior.setSigAdyacente(actual.getSigAdyacente());
@@ -147,36 +146,53 @@ public class Grafo<T, E> {
 
     /**
      * Elimina el vértice igual a 'elem' y todos los arcos que lo involucran.
-     * Paso 1: recorre todos los demás vértices y les quita el arco hacia 'elem'.
-     * Paso 2: desconecta el propio NodoVert de la lista de vértices.
+     * 
+     * Estrategia (para grafo no dirigido):
+     * 1. Recorrer la lista de vértices una sola vez para ubicar 'aBorrar' y
+     *    al mismo tiempo mantener 'vertPrevio' para poder desconectarlo.
+     * 2. Recorrer los adyacentes de 'aBorrar': cada adyacente es exactamente
+     *    un vértice que tiene un arco inverso hacia 'aBorrar'. Desenlazarlo
+     *    directamente desde la referencia ya disponible, sin recorrer toda
+     *    la lista de vértices.
+     * 3. Desconectar 'aBorrar' de la lista de vértices usando 'vertPrevio'.
+     * 
      * @param elem el elemento del vértice a eliminar
-     * @return true si se eliminó correctamente, false si no existía el vértice
+     * @return true si se eliminó, false si no existía el vértice
      */
     public boolean eliminarVertice(T elem) {
-        // TODO: mejorar eficiencia del recorrido
         boolean exito = false;
-        NodoVert<T, E> aBorrar = this.ubicarVertice(elem);
-        if (aBorrar != null) {
-            // Paso 1 — eliminar arcos entrantes desde el resto de vértices
-            NodoVert<T, E> aux = this.inicio;
-            while (aux != null) {
-                if (!aux.equals(aBorrar)) {
-                    this.desenlazarAdyacente(aux, aBorrar);
-                }
+        NodoVert<T, E> aBorrar = null;
+        NodoVert<T, E> vertPrevio = null; // usado para desconectar aBorrar de lista de vértices
+        NodoVert<T, E> aux = this.inicio;
+
+        // 1. recorrer lista de vértices una vez para ubicar 'aBorrar' y guardar anterior
+        while (aux != null && aBorrar == null) {
+            if (aux.getElem().equals(elem)) {
+                aBorrar = aux;
+            } else {
+                vertPrevio = aux;
                 aux = aux.getSigVertice();
             }
-            // Paso 2 — quitar el nodo de la lista de vértices
-            if (this.inicio.equals(aBorrar)) {
-                this.inicio = this.inicio.getSigVertice();
-            } else {
-                NodoVert<T, E> prev = this.inicio;
-                while (prev.getSigVertice() != null && !prev.getSigVertice().equals(aBorrar)) {
-                    prev = prev.getSigVertice();
-                }
-                if (prev.getSigVertice() != null) {
-                    prev.setSigVertice(aBorrar.getSigVertice());
-                }
+        }
+
+        if (aBorrar != null) {
+            // 2. Recorrer los adyacentes de 'aBorrar' para eliminar los arcos inversos (grafo no
+            // dirigido). Es más eficiente aprovechar los enlaces que recorrer toda la lista de
+            // vértices buscando quién apunta a 'aBorrar'.
+            NodoAdy<T, E> ady = aBorrar.getPrimerAdy();
+            while (ady != null) {
+                this.desenlazarAdyacente(ady.getVertice(), aBorrar);
+                ady = ady.getSigAdyacente();
             }
+
+            // 3. quitar 'aBorrar' de la lista de vértices usando 'vertPrevio'
+            if (vertPrevio == null) {
+                // aBorrar era el primer vértice de la lista
+                this.inicio = aBorrar.getSigVertice();
+            } else {
+                vertPrevio.setSigVertice(aBorrar.getSigVertice());
+            }
+
             exito = true;
         }
         return exito;
@@ -205,10 +221,20 @@ public class Grafo<T, E> {
         boolean exito = false;
         NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
         NodoVert<T, E> nDestino = this.ubicarVertice(destino);
-        if (nOrigen != null && nDestino != null && !this.existeArco(origen, destino)) {
-            this.enlazarAdyacente(nOrigen, nDestino, etiqueta);
-            this.enlazarAdyacente(nDestino, nOrigen, etiqueta); // no dirigido
-            exito = true;
+        boolean existeArco = false;
+        if (nOrigen != null && nDestino != null) {
+            NodoAdy<T, E> ady = nOrigen.getPrimerAdy();
+            while (!existeArco && ady != null) {
+                if (ady.getVertice().getElem().equals(destino)) {
+                    existeArco = true;
+                }
+                ady = ady.getSigAdyacente();
+            }
+            if (!existeArco) {
+                this.enlazarAdyacente(nOrigen, nDestino, etiqueta);
+                this.enlazarAdyacente(nDestino, nOrigen, etiqueta); // no dirigido
+                exito = true;
+            }
         }
         return exito;
     }
@@ -226,7 +252,8 @@ public class Grafo<T, E> {
         NodoVert<T, E> aux = this.inicio;
         
         while((auxO == null || auxD == null) && aux != null) {
-            // recorre la lista de vértices una sola vez hasta determinar si existen ambos
+            // * recorre la lista de vértices una sola vez hasta determinar si existen ambos
+            // * porque es más eficiente que llamar a ubicarVertice() para ambos objetos
             if (aux.getElem().equals(origen)) auxO = aux;
             if (aux.getElem().equals(destino)) auxD = aux;
             aux = aux.getSigVertice();
