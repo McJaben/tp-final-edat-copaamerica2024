@@ -509,9 +509,10 @@ public class CopaAmerica {
      */
     private boolean tieneAlojamientoEnCamino(Lista camino) {
         boolean tieneAlojamiento = false;
+        int longitud = camino.longitud(); // calculo una sola vez: O(n)
         // empiezo en posición 2 para omitir el origen y corto el ciclo si ya encontré una ciudad
         // con alojamiento para no recorrer ciudades innecesariamente
-        for (int i = 2; i <= camino.longitud() && !tieneAlojamiento; i++) {
+        for (int i = 2; i <= longitud && !tieneAlojamiento; i++) {
             Ciudad ciudad = (Ciudad) camino.recuperar(i);
             if (ciudad.getTieneAlojamiento()) {
                 tieneAlojamiento = true;
@@ -539,10 +540,12 @@ public class CopaAmerica {
         // El for es de orden O(n) y cada inserción es O(log n)
         HeapMin<EquipoPorGoles> heap = new HeapMin<>();
 
-        // Carga de datos en el Heap
-        for (int i = 1; i <= listaOriginal.longitud(); i++) {
-            Equipo e = (Equipo) listaOriginal.recuperar(i); // TODO: podría eliminarlo en lugar de sólo recuperar
-            // El heap utiliza EquipoPorGoles para decidir la prioridad
+        // Carga de datos en el Heap de forma eficiente:
+        // Consumir listaOriginal desde posición 1: recuperar(1) y eliminar(1) son O(1).
+        // Esto evita el for con recuperar(i) O(i) y longitud() O(n) en cada iteración.
+        while (!listaOriginal.esVacia()) {
+            Equipo e = (Equipo) listaOriginal.recuperar(1);
+            listaOriginal.eliminar(1); // consumir dato: ya no se necesita este elemento
             heap.insertar(new EquipoPorGoles(e));
         }
 
@@ -550,12 +553,14 @@ public class CopaAmerica {
          * Al ser un HeapMin con compareTo invertido, recuperarCima() siempre devuelve el equipo con
          * mayor cantidad de goles en O(1).
          */
+        int pos = 1; // contador para longitud de lista nueva 'listaOrdenada'
         while (!heap.esVacio()) {
             EquipoPorGoles wrap = heap.recuperarCima();
             heap.eliminarCima(); // Reorganización en O(log n)
 
             // Insertar el objeto Equipo original en la lista final
-            listaOrdenada.insertar(wrap.equipo, listaOrdenada.longitud() + 1);
+            listaOrdenada.insertar(wrap.equipo, pos);
+            pos++;
         }
 
         return listaOrdenada;
