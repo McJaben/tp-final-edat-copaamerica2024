@@ -602,7 +602,7 @@ public class Menu {
      */
     private boolean guardarEnArchivo(String contenido, String nombreArchivo) {
         try (java.io.BufferedWriter writer =
-                new java.io.BufferedWriter(new java.io.FileWriter("logs/" + nombreArchivo))) {
+                new java.io.BufferedWriter(new java.io.FileWriter("src/logs/" + nombreArchivo))) {
             writer.write(contenido);
             return true;
         } catch (java.io.IOException e) {

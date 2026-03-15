@@ -20,7 +20,7 @@ public class CopaAmerica {
     private ArbolAVL<Equipo> equipos;
     private Grafo<Ciudad, Integer> mapaCiudades; // Integer es el tiempo de vuelo en minutos
     private HashMap<ClavePartido, Lista> partidos; // la lista es de DatosPartido
-    private Logger logger = new Logger("logs/sistema.log"); // Logger para registrar operaciones y errores
+    private Logger logger = new Logger("src/logs/sistema.log"); // Logger para registrar operaciones y errores
 
     public CopaAmerica() {
         // Inicializamos las estructuras
