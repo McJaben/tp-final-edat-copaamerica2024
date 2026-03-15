@@ -7,12 +7,11 @@ package sistema;
  *
  * Requisitos del dominio:
  *   - nombre único como identificador (equals por nombre, case-insensitive)
- *   - compareTo por nombre
  *   - tieneAlojamiento y esSede modificables (setters) -> para las ABM del menú
  *   - toString informativo para el debugging (punto 8 del TPO)
  *   ? El tiempo de vuelo entre ciudades se almacena como etiqueta en los arcos del grafo
  */
-public class Ciudad implements Comparable<Ciudad> {
+public class Ciudad {
 
     private final String nombre; // es final porque es su identificador único
     private boolean tieneAlojamiento;
@@ -55,16 +54,7 @@ public class Ciudad implements Comparable<Ciudad> {
         this.esSede = esSede;
     }
 
-    // Equals, compareTo y toString
-
-    /**
-     * Orden alfabético por nombre (case-insensitive). Permite ordenar ciudades si fuese necesario
-     * en alguna consulta.
-     */
-    @Override
-    public int compareTo(Ciudad otra) {
-        return this.nombre.compareToIgnoreCase(otra.nombre);
-    }
+    // Equals y toString
 
     /**
      * Dos ciudades son iguales si tienen el mismo nombre (case-insensitive). Es importante para que

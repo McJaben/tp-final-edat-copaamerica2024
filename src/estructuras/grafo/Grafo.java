@@ -60,10 +60,10 @@ import estructuras.lineales.Cola;
  * Debug:
  *  toString()                                      → String
  *
- * @param <T> Tipo de elemento en los vértices (debe implementar equals y Comparable)
- * @param <E> Tipo de etiqueta en los arcos (debe implementar Comparable, ej. Integer p/ minutos)
+ * @param <T> Tipo de elemento en los vértices (debe implementar equals)
+ * @param <E> Tipo de etiqueta en los arcos (ej. Integer p/ minutos)
  */
-public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
+public class Grafo<T, E> {
 
     private NodoVert<T, E> inicio;
 
@@ -275,9 +275,11 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public Lista listarEnProfundidad() {
         Lista visitados = new Lista();
+        // define un vértice donde comenzar a recorrer
         NodoVert<T, E> aux = this.inicio;
         while (aux != null) {
             if (visitados.localizar(aux.getElem()) < 0) {
+                // si el vértice no fue visitado aún, avanza en profundidad
                 this.listarEnProfundidadAux(aux, visitados);
             }
             aux = aux.getSigVertice();
@@ -285,14 +287,18 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
         return visitados;
     }
 
-    private void listarEnProfundidadAux(NodoVert<T, E> n, Lista visitados) {
-        visitados.insertar(n.getElem(), visitados.longitud() + 1);
-        NodoAdy<T, E> ady = n.getPrimerAdy();
-        while (ady != null) {
-            if (visitados.localizar(ady.getVertice().getElem()) < 0) {
-                this.listarEnProfundidadAux(ady.getVertice(), visitados);
+    private void listarEnProfundidadAux(NodoVert<T, E> n, Lista vis) {
+        if (n != null) {
+            // marca al vértice n como visitado
+            vis.insertar(n.getElem(), vis.longitud() + 1);
+            NodoAdy<T, E> ady = n.getPrimerAdy();
+            while (ady != null) {
+                // visita en profundidad los adyacentes de n aún no visitados
+                if (vis.localizar(ady.getVertice().getElem()) < 0) {
+                    this.listarEnProfundidadAux(ady.getVertice(), vis);
+                }
+                ady = ady.getSigAdyacente();
             }
-            ady = ady.getSigAdyacente();
         }
     }
 
@@ -341,27 +347,42 @@ public class Grafo<T extends Comparable<T>, E extends Comparable<E>> {
      */
     public boolean existeCamino(T origen, T destino) {
         boolean existe = false;
-        NodoVert<T, E> nOrigen  = this.ubicarVertice(origen);
-        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
-        if (nOrigen != null && nDestino != null) {
+        // verifica si ambos vértices existen
+        NodoVert<T, E> auxO  = null;
+        NodoVert<T, E> auxD = null;
+        NodoVert<T, E> aux = this.inicio;
+
+        while((auxO == null || auxD == null) && aux != null) {
+            if (aux.getElem().equals(origen)) auxO = aux;
+            if (aux.getElem().equals(destino)) auxD = aux;
+            aux = aux.getSigVertice();
+        }
+
+        if (auxO != null && auxD != null) {
+            // si ambos vértices existen, busca si existe camino entre ambos
             Lista visitados = new Lista();
-            existe = this.existeCaminoAux(nOrigen, destino, visitados);
+            existe = this.existeCaminoAux(auxO, destino, visitados);
         }
         return existe;
     }
 
-    private boolean existeCaminoAux(NodoVert<T, E> actual, T destino, Lista visitados) {
+    private boolean existeCaminoAux(NodoVert<T, E> actual, T destino, Lista vis) {
         boolean encontrado = false;
-        if (actual.getElem().equals(destino)) {
-            encontrado = true;
-        } else {
-            visitados.insertar(actual.getElem(), visitados.longitud() + 1);
-            NodoAdy<T, E> ady = actual.getPrimerAdy();
-            while (ady != null && !encontrado) {
-                if (visitados.localizar(ady.getVertice().getElem()) < 0) {
-                    encontrado = this.existeCaminoAux(ady.getVertice(), destino, visitados);
+        if (actual != null) {
+            // si vértice actual es el destino: ¡hay camino!
+            if (actual.getElem().equals(destino)) {
+                encontrado = true;
+            } else {
+                // si no es el destino, verifica si hay camino entre n y destino
+                vis.insertar(actual.getElem(), vis.longitud() + 1);
+                NodoAdy<T, E> ady = actual.getPrimerAdy();
+                while (ady != null && !encontrado) {
+                    // si el nodo adyacente no fue visitado, llama recursivamente con adyacente
+                    if (vis.localizar(ady.getVertice().getElem()) < 0) {
+                        encontrado = this.existeCaminoAux(ady.getVertice(), destino, vis);
+                    }
+                    ady = ady.getSigAdyacente();
                 }
-                ady = ady.getSigAdyacente();
             }
         }
         return encontrado;
