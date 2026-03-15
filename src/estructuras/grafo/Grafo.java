@@ -426,7 +426,7 @@ public class Grafo<T, E> {
         return encontrado;
     }
 
-    //  TPO consigna 6.a — CAMINO CON MENOS ESCALAS (BFS)
+    //  TPO consigna 6.a — CAMINO CON MENOS ESCALAS (BFS) (menos vértices)
 
     /**
      * Devuelve el camino de A a B que pasa por la mínima cantidad de vértices.
@@ -493,16 +493,16 @@ public class Grafo<T, E> {
      * (suma de etiquetas de los arcos recorridos).
      *
      * Algoritmo: DFS con backtracking.
-     *   - 'caminoActual' crece al avanzar y se recorta al retroceder.
+     *   - 'caminoActual' cumple dos roles: lleva el recorrido construido y sirve
+     *     como lista de visitados para evitar ciclos (localizar() sobre ella).
      *   - 'menosPeso[0]' es la referencia mutable al mejor tiempo hallado.
      *   - Poda: si el tiempo acumulado ya iguala o supera el mejor conocido,
      *     no se sigue explorando esa rama.
-     *
-     * NOTA: E debe ser Integer cuando el grafo se instancia como Grafo<Ciudad, Integer>.
-     *
+     *   - Al llegar al destino, mejorCamino.copiarDesde(caminoActual) actualiza
+     *     el resultado en O(n) en lugar del for con recuperar(i) que era O(n²).
      * Devuelve Lista vacía si no hay camino o algún vértice no existe.
      */
-    public Lista caminoMasLiviano(T origen, T destino) { // camino más liviano
+    public Lista caminoMasLiviano(T origen, T destino) {
         Lista mejorCamino = new Lista();
         NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
         NodoVert<T, E> nDestino = this.ubicarVertice(destino);
@@ -510,40 +510,30 @@ public class Grafo<T, E> {
             Lista caminoActual = new Lista();
             caminoActual.insertar(origen, 1);
             int[] menosPeso = {Integer.MAX_VALUE}; // puede representar tiempo/longitud/etc
-            this.caminoMasLivianoAux(nOrigen, destino, caminoActual, 0, menosPeso, mejorCamino);
+            this.caminoMasLivianoAux(nOrigen, nDestino, caminoActual, 0, menosPeso, mejorCamino);
         }
         return mejorCamino;
     }
 
-    // TODO: practicar bastante este recorrido DFS
-
-    private void caminoMasLivianoAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
-            int minutosAcum, int[] menosPeso, Lista mejorCamino) {
-        if (actual.getElem().equals(destino)) {
-            if (minutosAcum < menosPeso[0]) { // Probar si es necesaria la comprobación
-                menosPeso[0] = minutosAcum;
-                // clone() es O(n) y evita el for de copia que era O(n) con longitud() O(n) adentro = O(n²)
-                mejorCamino.copiarDesde(caminoActual);
-                // El for con recuperar(i) era cuadrático porque recorres desde la cabecera hasta
-                // pos i en cada iteración
-                // for (int i = 1; i <= caminoActual.longitud(); i++) { // O(n2)
-                //     // si uso clone() mejoro eficiencia pero debo retornar el mejorCamino
-                //     mejorCamino.insertar(caminoActual.recuperar(i), i); // 3n2
-                //     // mejorCamino.copiar(caminoActual); // TODO: dentro podría clonar caminoActual y le asigna la cabecera a mejorCamino
-                //     // TODO: Idea: un clone() custom para TDA Lista y eso evita tener que retornar
-                // }
-            }
+    private void caminoMasLivianoAux(NodoVert<T, E> actual, NodoVert<T, E> destino, Lista caminoActual,
+            int pesoAcum, int[] menosPeso, Lista mejorCamino) {
+        if (actual == destino) { // comparo por referencia O(1) en lugar de usar equals()
+            menosPeso[0] = pesoAcum;
+            // clone() es O(n) y evita el for de copia que era O(n) con longitud() O(n) adentro = O(n²)
+            mejorCamino.copiarDesde(caminoActual);
         } else {
             NodoAdy<T, E> ady = actual.getPrimerAdy();
             while (ady != null) {
                 T elemAdy = ady.getVertice().getElem();
-                int tiempoAdy = (Integer) ady.getEtiqueta();
-                int nuevoTiempo = minutosAcum + tiempoAdy;
+                int pesoAdy = (Integer) ady.getEtiqueta();
+                int nuevoPeso = pesoAcum + pesoAdy;
                 // localizar() sobre caminoActual es O(n): aceptable para evitar ciclos en DFS
-                if (caminoActual.localizar(elemAdy) < 0 && nuevoTiempo < menosPeso[0]) {
+                // la comparación del nuevoPeso con menosPeso[0] es una poda que garantiza que
+                // sólo se exploren caminos que pueden mejorar el mejorCamino hasta ahora
+                if (caminoActual.localizar(elemAdy) < 0 && nuevoPeso < menosPeso[0]) {
                     // Testear
                     caminoActual.insertar(elemAdy, caminoActual.longitud() + 1);
-                    this.caminoMasLivianoAux(ady.getVertice(), destino, caminoActual, nuevoTiempo,
+                    this.caminoMasLivianoAux(ady.getVertice(), destino, caminoActual, nuevoPeso,
                             menosPeso, mejorCamino);
                     caminoActual.eliminar(caminoActual.longitud()); // backtracking
                 }
@@ -582,15 +572,15 @@ public class Grafo<T, E> {
             bloqueados.insertar(verticeEvitar, 2);
 
             int[] menosPeso = {Integer.MAX_VALUE};
-            this.caminoMasLivianoSinPasarAux(nOrigen, destino, caminoActual, bloqueados, 0,
+            this.caminoMasLivianoSinPasarAux(nOrigen, nDestino, caminoActual, bloqueados, 0,
                     menosPeso, mejorCamino);
         }
         return mejorCamino;
     }
 
-    private void caminoMasLivianoSinPasarAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+    private void caminoMasLivianoSinPasarAux(NodoVert<T, E> actual, NodoVert<T, E> destino, Lista caminoActual,
             Lista bloqueados, int minutosAcum, int[] menosPeso, Lista mejorCamino) {
-        if (actual.getElem().equals(destino)) {
+        if (actual == destino) {
             if (minutosAcum < menosPeso[0]) {
                 menosPeso[0] = minutosAcum;
                 mejorCamino.copiarDesde(caminoActual);
@@ -634,14 +624,14 @@ public class Grafo<T, E> {
         if (nOrigen != null && nDestino != null) {
             Lista caminoActual = new Lista();
             caminoActual.insertar(origen, 1);
-            this.todosLosCaminosAux(nOrigen, destino, caminoActual, todos);
+            this.todosLosCaminosAux(nOrigen, nDestino, caminoActual, todos);
         }
         return todos;
     }
 
-    private void todosLosCaminosAux(NodoVert<T, E> actual, T destino, Lista caminoActual,
+    private void todosLosCaminosAux(NodoVert<T, E> actual, NodoVert<T, E> destino, Lista caminoActual,
             Lista todos) {
-        if (actual.getElem().equals(destino)) {
+        if (actual == destino) {
             todos.insertar(caminoActual.clone(), todos.longitud() + 1);
         } else {
             NodoAdy<T, E> ady = actual.getPrimerAdy();
