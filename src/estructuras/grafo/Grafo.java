@@ -426,65 +426,74 @@ public class Grafo<T, E> {
         return encontrado;
     }
 
-    //  TPO consigna 6.a — CAMINO CON MENOS ESCALAS (BFS) (menos vértices)
-    // TODO: probar implementar camino menos escalas con DFS en lugar de recorrido en anchura
-
+    // TPO consigna 6.a — CAMINO CON MENOS ESCALAS (DFS + backtracking + poda) (menos vértices)
     /**
      * Devuelve el camino de A a B que pasa por la mínima cantidad de vértices.
      *
-     * Algoritmo: BFS — el primer camino completo encontrado en BFS es el de menos saltos, por la
-     * propiedad de exploración nivel a nivel.
-     *
-     * La Cola guarda objetos Lista, donde cada Lista es el camino recorrido hasta ese punto. Cuando
-     * se llega al destino se devuelve esa Lista.
-     *
-     * Devuelve Lista vacía si algún vértice no existe o no hay camino.
+     * ESTRATEGIA: DFS con backtracking y poda:
+     * - Se realiza un recorrido en profundidad (DFS) explorando todos los caminos
+     *   posibles desde el vértice origen.
+     * - Se mantiene un caminoActual (Lista) con los vértices visitados para evitar ciclos.
+     * - Se utiliza un parámetro cantActual (int) que representa la longitud del
+     *   caminoActual, lo que permite:
+     *      * Evaluar la poda sin necesidad de calcular caminoActual.longitud()
+     *        (operación O(n) en implementación de Lista, porque no guarda longitud)
+     *      * Insertar/eliminar en posiciones conocidas
+     * - La poda se aplica antes de la llamada recursiva: (cantActual + 1) < menosVertices[0]
+     *   Si la longitud del nuevo camino iguala o supera la mejor encontrada, se descarta esa rama
+     * - Al llegar al destino, se actualiza el mejorCamino con copiarDesde() O(n).
+     *     
+     * @param origen  Vértice de partida.
+     * @param destino Vértice de llegada.
+     * @return Lista con el camino de mínima cantidad de vértices (incluye origen y
+     *         destino). Lista vacía si algún vértice no existe o no hay camino.     
      */
     public Lista caminoMenosVertices(T origen, T destino) {
-        Lista resultado = new Lista();
-        NodoVert<T, E> nOrigen = ubicarVertice(origen);
-        NodoVert<T, E> nDestino = ubicarVertice(destino);
-        
+        Lista mejorCamino = new Lista();
+        NodoVert<T, E> nOrigen = this.ubicarVertice(origen);
+        NodoVert<T, E> nDestino = this.ubicarVertice(destino);
         if (nOrigen != null && nDestino != null) {
-            Lista visitados = new Lista();
-            visitados.insertar(origen, 1);
+            Lista caminoActual = new Lista();
+            caminoActual.insertar(origen, 1); // origen en pos 1
+            int[] menosVert = {Integer.MAX_VALUE}; // cota superior que se va actualizando
+            this.caminoMenosVerticesAux(nOrigen, nDestino, caminoActual, 1, menosVert, mejorCamino);
+        }
+        return mejorCamino;
+    }
 
-            // La Cola almacena Listas; cada Lista es un camino parcial
-            Cola colaCaminos = new Cola();
-            Lista caminoInicial = new Lista();
-            caminoInicial.insertar(origen, 1);
-            colaCaminos.poner(caminoInicial);
-
-            while (!colaCaminos.esVacia() && resultado.esVacia()) {
-                Lista caminoActual = (Lista) colaCaminos.obtenerFrente();
-                colaCaminos.sacar();
-
-                int longCamino = caminoActual.longitud(); // evitar llamadas repetidas
-                // Último elemento del camino parcial = vértice actual
-                @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy
-                                               // encolando objetos T (Ciudad en TPO)
-                T ultimoElem = (T) caminoActual.recuperar(longCamino);
-                NodoVert<T, E> nActual = this.ubicarVertice(ultimoElem);
-
-                NodoAdy<T, E> ady = nActual.getPrimerAdy();
-                while (ady != null && resultado.esVacia()) {
-                    T elemAdy = ady.getVertice().getElem();
-                    if (visitados.localizar(elemAdy) < 0) {
-                        Lista nuevoCamino = caminoActual.clone();
-                        nuevoCamino.insertar(elemAdy, nuevoCamino.longitud() + 1);
-                        if (elemAdy.equals(destino)) {
-                            resultado = nuevoCamino; // primer camino completo en BFS
-                        } else {
-                            visitados.insertar(elemAdy, visitados.longitud() + 1);
-                            colaCaminos.poner(nuevoCamino);
-                        }
-                    }
-                    ady = ady.getSigAdyacente();
+    /**
+     * Método auxiliar recursivo para caminoMenosVertices().
+     * 
+     * @param actual Vértice actual en la exploración.
+     * @param destino Vértice destino buscado.
+     * @param caminoActual Lista con el camino construido hasta el momento.
+     * @param cantActual Longitud actual de caminoActual (evita calcular longitud()).
+     * @param menosVertices Arreglo mutable con la menor cantidad de vértices encontrada.
+     * @param mejorCamino Lista donde se almacena el mejor camino (por referencia).
+     */
+    private void caminoMenosVerticesAux(NodoVert<T, E> actual, NodoVert<T, E> destino,
+            Lista caminoActual, int cantActual, int[] menosVertices, Lista mejorCamino) {
+        if (actual == destino) { // comparación por referencia O(1)
+            // poda antes del llamado garantiza que cantActual < menosVertices[0]
+            menosVertices[0] = cantActual;
+            mejorCamino.copiarDesde(caminoActual); // O(n)
+        } else {
+            NodoAdy<T, E> ady = actual.getPrimerAdy();
+            while (ady != null) {
+                T elemAdy = ady.getVertice().getElem();
+                // * evito usar longitud() porque es O(n) y uso cantActual O(1) en su lugar
+                // Orden deliberado: O(1) primero, O(n) después. Evita ciclos.
+                if ((cantActual + 1) < menosVertices[0] && caminoActual.localizar(elemAdy) < 0) {
+                    // Insertar al final: posición cantActual + 1 es la nueva última posición
+                    caminoActual.insertar(elemAdy, cantActual + 1);
+                    this.caminoMenosVerticesAux(ady.getVertice(), destino, caminoActual,
+                            cantActual + 1, menosVertices, mejorCamino);
+                    // Backtracking: eliminar el último elemento (posición cantActual + 1)
+                    caminoActual.eliminar(cantActual + 1);
                 }
+                ady = ady.getSigAdyacente();
             }
         }
-
-        return resultado;
     }
 
     //  TPO consigna 6.b — CAMINO DE MENOR TIEMPO (DFS + backtracking)
@@ -632,42 +641,6 @@ public class Grafo<T, E> {
         }
     }
 
-    //  toString() — consigna 8 del TPO (debugging)
-
-    // /**
-    //  * Muestra todas las ciudades y sus rutas con el tiempo en minutos.
-    //  * Ejemplo:
-    //  *   MIAMI [SEDE] [Alojamiento] --> [90 min → LAS VEGAS] [320 min → LOS ANGELES]
-    //  */
-    // @Override
-    // public String toString() {
-    //     StringBuilder sb = new StringBuilder();
-    //     if (this.inicio == null) {
-    //         sb.append("Grafo vacío\n");
-    //     } else {
-    //         sb.append("=== Mapa de Ciudades (Grafo) ===\n");
-    //         NodoVert<T, E> nv = this.inicio;
-    //         while (nv != null) {
-    //             sb.append(nv.getElem().toString()).append(" --> ");
-    //             NodoAdy<T, E> ady = nv.getPrimerAdy();
-    //             if (ady == null) {
-    //                 sb.append("[sin rutas]");
-    //             }
-    //             while (ady != null) {
-    //                 sb.append("[")
-    //                   .append(ady.getEtiqueta())
-    //                   .append(" min → ")
-    //                   .append(ady.getVertice().getElem().toString())
-    //                   .append("] ");
-    //                 ady = ady.getSigAdyacente();
-    //             }
-    //             sb.append("\n");
-    //             nv = nv.getSigVertice();
-    //         }
-    //     }
-    //     return sb.toString();
-    // }
-
     //  toString() — Versión mejorada para el TPO (debugging y visualización)
 
     /**
@@ -737,4 +710,99 @@ public class Grafo<T, E> {
         }
         return sb.toString();
     }
+
+
+    // /**
+    //  * Muestra todas las ciudades y sus rutas con el tiempo en minutos.
+    //  * Ejemplo:
+    //  *   MIAMI [SEDE] [Alojamiento] --> [90 min → LAS VEGAS] [320 min → LOS ANGELES]
+    //  */
+    // @Override
+    // public String toString() {
+    //     StringBuilder sb = new StringBuilder();
+    //     if (this.inicio == null) {
+    //         sb.append("Grafo vacío\n");
+    //     } else {
+    //         sb.append("=== Mapa de Ciudades (Grafo) ===\n");
+    //         NodoVert<T, E> nv = this.inicio;
+    //         while (nv != null) {
+    //             sb.append(nv.getElem().toString()).append(" --> ");
+    //             NodoAdy<T, E> ady = nv.getPrimerAdy();
+    //             if (ady == null) {
+    //                 sb.append("[sin rutas]");
+    //             }
+    //             while (ady != null) {
+    //                 sb.append("[")
+    //                   .append(ady.getEtiqueta())
+    //                   .append(" min → ")
+    //                   .append(ady.getVertice().getElem().toString())
+    //                   .append("] ");
+    //                 ady = ady.getSigAdyacente();
+    //             }
+    //             sb.append("\n");
+    //             nv = nv.getSigVertice();
+    //         }
+    //     }
+    //     return sb.toString();
+    // }
+
+    // //  TPO consigna 6.a — CAMINO CON MENOS ESCALAS (BFS) (menos vértices)
+    // // probar implementar camino menos escalas con DFS en lugar de recorrido en anchura
+    // /**
+    //  * Devuelve el camino de A a B que pasa por la mínima cantidad de vértices.
+    //  *
+    //  * Algoritmo: BFS — el primer camino completo encontrado en BFS es el de menos saltos, por la
+    //  * propiedad de exploración nivel a nivel.
+    //  *
+    //  * La Cola guarda objetos Lista, donde cada Lista es el camino recorrido hasta ese punto. Cuando
+    //  * se llega al destino se devuelve esa Lista.
+    //  *
+    //  * Devuelve Lista vacía si algún vértice no existe o no hay camino.
+    //  */
+    // public Lista caminoMenosVertices(T origen, T destino) {
+    //     Lista resultado = new Lista();
+    //     NodoVert<T, E> nOrigen = ubicarVertice(origen);
+    //     NodoVert<T, E> nDestino = ubicarVertice(destino);
+        
+    //     if (nOrigen != null && nDestino != null) {
+    //         Lista visitados = new Lista();
+    //         visitados.insertar(origen, 1);
+
+    //         // La Cola almacena Listas; cada Lista es un camino parcial
+    //         Cola colaCaminos = new Cola();
+    //         Lista caminoInicial = new Lista();
+    //         caminoInicial.insertar(origen, 1);
+    //         colaCaminos.poner(caminoInicial);
+
+    //         while (!colaCaminos.esVacia() && resultado.esVacia()) {
+    //             Lista caminoActual = (Lista) colaCaminos.obtenerFrente();
+    //             colaCaminos.sacar();
+
+    //             int longCamino = caminoActual.longitud(); // evitar llamadas repetidas
+    //             // Último elemento del camino parcial = vértice actual
+    //             @SuppressWarnings("unchecked") // Suprimo este warning porque estoy seguro que estoy
+    //                                            // encolando objetos T (Ciudad en TPO)
+    //             T ultimoElem = (T) caminoActual.recuperar(longCamino);
+    //             NodoVert<T, E> nActual = this.ubicarVertice(ultimoElem);
+
+    //             NodoAdy<T, E> ady = nActual.getPrimerAdy();
+    //             while (ady != null && resultado.esVacia()) {
+    //                 T elemAdy = ady.getVertice().getElem();
+    //                 if (visitados.localizar(elemAdy) < 0) {
+    //                     Lista nuevoCamino = caminoActual.clone();
+    //                     nuevoCamino.insertar(elemAdy, nuevoCamino.longitud() + 1);
+    //                     if (elemAdy.equals(destino)) {
+    //                         resultado = nuevoCamino; // primer camino completo en BFS
+    //                     } else {
+    //                         visitados.insertar(elemAdy, visitados.longitud() + 1);
+    //                         colaCaminos.poner(nuevoCamino);
+    //                     }
+    //                 }
+    //                 ady = ady.getSigAdyacente();
+    //             }
+    //         }
+    //     }
+
+    //     return resultado;
+    // }
 }
