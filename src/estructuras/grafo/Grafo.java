@@ -544,7 +544,7 @@ public class Grafo<T, E> {
 
     //  TPO consigna 6.c (*) — MENOR TIEMPO SIN PASAR POR VÉRTICE C
     /**
-     ** Camino de menor tiempo de A a B que no pase por el vértice C.
+     ** Camino más liviano de A a B que no pase por el vértice C.
      *
      * Devuelve Lista vacía si no hay camino que evite C, o si algún vértice no existe.
      */
