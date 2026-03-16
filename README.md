@@ -34,7 +34,7 @@ Todas las estructuras (Grafo, AVL, Lista, Cola, HeapMin) están implementadas de
 3.  Alta de partidos        — Registro de resultados (actualiza estadísticas automáticamente)
 4.  Consultas sobre equipos — Info de un país · Equipos en rango alfabético [min, max]
 5.  Consultas de partidos   — Historial de enfrentamientos entre dos equipos
-6.  Consultas de viajes     — Camino con mínimas escalas (BFS)
+6.  Consultas de viajes     — Camino con mínimas escalas (DFS + backtracking)
                             — Camino de menor tiempo (DFS + backtracking)
                             — (*) Camino más corto evitando una ciudad
                             — (*) Todos los caminos + filtro por alojamiento disponible
@@ -145,14 +145,14 @@ SESIÓN INICIADA: 2024-07-15 14:32:01
 
 ## Algoritmos de caminos implementados
 
-**BFS — Mínima cantidad de ciudades**  
-La cola gestiona caminos parciales. El primer camino que alcanza el destino es necesariamente el de menos saltos.
+**DFS + backtracking + poda — Mínima cantidad de ciudades**  
+Se exploran todos los caminos simples desde el origen con backtracking. Un contador entero `cantActual` reemplaza las llamadas a `longitud()` para evaluar la poda en O(1). La poda descarta ramas cuya longitud ya iguala o supera el mínimo encontrado. Al llegar al destino se actualiza el mejor camino con `copiarDesde()` en O(n).
 
-**DFS + backtracking — Menor tiempo de vuelo**  
-Se exploran todos los caminos simples acumulando tiempos. Una poda descarta ramas cuyo tiempo acumulado ya supera el mejor encontrado.
+**DFS + backtracking + poda — Menor tiempo de vuelo**  
+Se exploran todos los caminos simples acumulando tiempos. Una poda descarta ramas cuyo tiempo acumulado ya supera el mejor encontrado. Al llegar al destino se actualiza el mejor camino con `copiarDesde()` en O(n).
 
-**DFS con lista de bloqueados — Evitar ciudad C**
-Se mantienen dos listas separadas: `caminoActual`, que construye el recorrido y se copia al resultado cuando se llega al destino, y `bloqueados`, que registra los nodos ya visitados más la ciudad a evitar pre-insertada antes de iniciar el DFS. El auxiliar consulta `bloqueados` para decidir si explorar un nodo, y aplica backtracking en ambas listas al retroceder. De esta forma la ciudad bloqueada nunca aparece en el resultado y el grafo no se modifica.
+**DFS con descarte directo — Evitar ciudad C**  
+Igual que el camino de menor tiempo, pero con una condición adicional antes del llamado recursivo: si el adyacente es la ciudad a evitar, se descarta en O(1) sin necesidad de estructuras auxiliares. El grafo no se modifica.
 
 **DFS exhaustivo — Todos los caminos**  
 Se guardan clones del camino actual cada vez que se alcanza el destino. El resultado se puede filtrar por alojamiento disponible en ciudades intermedias o destino.
