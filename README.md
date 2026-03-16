@@ -23,6 +23,7 @@ Sistema de información para la Copa América 2024 (EEUU) que permite gestionar 
 | **HeapMin** | Auxiliar en ordenamiento de equipos por goles a favor |
 
 Todas las estructuras (Grafo, AVL, Lista, Cola, HeapMin) están implementadas desde cero con código propio. La excepción es el uso de HashMap propio de Java.
+
 ---
 
 ## Funcionalidades del menú
