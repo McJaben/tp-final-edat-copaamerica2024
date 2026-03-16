@@ -18,12 +18,11 @@ Sistema de información para la Copa América 2024 (EEUU) que permite gestionar 
 | **Grafo etiquetado** (lista de adyacencia) | Mapa de ciudades y rutas aéreas (etiqueta = minutos de vuelo) |
 | **Árbol AVL** | Tabla de equipos, ordenada alfabéticamente por nombre del país |
 | **HashMap de Java** | Partidos disputados, indexados por par de equipos |
-| **Lista enlazada** | Resultados de partidos por par de equipos; caminos del grafo |
-| **Cola** | Auxiliar en BFS (camino con mínimas escalas) |
+| **Lista enlazada** | Resultados de partidos por par de equipos; caminos del grafo (DFS) |
+| **Cola** | Auxiliar en el recorrido por niveles del toString() del AVL |
 | **HeapMin** | Auxiliar en ordenamiento de equipos por goles a favor |
 
 Todas las estructuras (Grafo, AVL, Lista, Cola, HeapMin) están implementadas desde cero con código propio. La excepción es el uso de HashMap propio de Java.
-
 ---
 
 ## Funcionalidades del menú
