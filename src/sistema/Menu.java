@@ -401,8 +401,9 @@ public class Menu {
 
                     // Lista de listas de ciudades (cada lista es un camino posible)
                     Lista todos = copa.todosLosCaminos(origen, destino);
+                    int longitudTodos = todos.longitud();
 
-                    if (todos == null || todos.longitud() == 0) {
+                    if (todos == null || longitudTodos == 0) {
                         System.out.println("No hay caminos.");
                     } else {
                         // Generar nombre de archivo con timestamp
@@ -412,7 +413,7 @@ public class Menu {
                                 String.format("caminos_%s_%s_%s.log", origen, destino, timestamp);
 
                         System.out.println(
-                                "Generando reporte de " + todos.longitud() + " caminos...");
+                                "Generando reporte de " + longitudTodos + " caminos...");
                         System.out.println("Esto puede tomar unos segundos...");
 
                         // Formatear TODOS los caminos (sin filtro)
@@ -426,12 +427,13 @@ public class Menu {
 
                         // Filtrar por alojamiento
                         Lista conAlojamiento = copa.filtrarCaminosConAlojamiento(todos);
+                        int longitudConAlojamiento = conAlojamiento.longitud();
 
                         // Formatear caminos con alojamiento
                         String contenidoConAlojamiento = copa.formatearCaminosParaArchivo(conAlojamiento,
                                 "CAMINOS CON ALOJAMIENTO DE " + origen + " A " + destino
-                                        + " (Total: " + conAlojamiento.longitud() + " de "
-                                        + todos.longitud() + ")");
+                                        + " (Total: " + longitudConAlojamiento + " de "
+                                        + longitudTodos + ")");
 
                         // Guardar archivo de caminos filtrados
                         if (guardarEnArchivo(contenidoConAlojamiento, "ALOJAMIENTO_" + nombreArchivo)) {
@@ -440,10 +442,10 @@ public class Menu {
 
                         // Mostrar solo un resumen en pantalla
                         System.out.println("\n=== RESUMEN ===");
-                        System.out.println("Total de caminos encontrados: " + todos.longitud());
-                        System.out.println("Caminos con alojamiento: " + conAlojamiento.longitud());
+                        System.out.println("Total de caminos encontrados: " + longitudTodos);
+                        System.out.println("Caminos con alojamiento: " + longitudConAlojamiento);
                         System.out.println("Caminos sin alojamiento: "
-                                + (todos.longitud() - conAlojamiento.longitud()));
+                                + (longitudTodos - longitudConAlojamiento));
                         System.out.println("\nLos detalles completos se guardaron en:");
                         System.out.println("  - TODOS_" + nombreArchivo);
                         System.out.println("  - ALOJAMIENTO_" + nombreArchivo);
